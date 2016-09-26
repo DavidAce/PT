@@ -66,9 +66,11 @@ void class_worker::start_counters() {
 
 void class_worker::set_initial_temperatures(){
     T_ladder  = ArrayXd::LinSpaced(world_size, PT_constants::T_min, PT_constants::T_max);
-    T_address = ArrayXi::LinSpaced(world_size, 0, world_size - 1 );
+//    T_address = ArrayXi::LinSpaced(world_size, 0, world_size - 1 );
     T = T_ladder(world_ID);
     T_ID = world_ID;
+    world_ID_up = math::mod(world_ID + 1, world_size);
+    world_ID_dn = math::mod(world_ID - 1, world_size);
 
 }
 

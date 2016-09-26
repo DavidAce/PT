@@ -27,7 +27,7 @@ namespace PT_constants{
 
     //Rates for checking and printing (MCS units)
     static const int    rate_swap              = 10;       //How often to swap walkers in adjacent windows
-    static const int    rate_print_status      = 1000;     //How often to print in terminal
+    static const int    rate_print_status      = 500;     //How often to print in terminal
 
 }
 

@@ -42,6 +42,9 @@ void sweep(class_worker &worker){
 
 void sample(class_worker &worker){
 
+
+
+
 }
 
 void print_status(class_worker &worker) {

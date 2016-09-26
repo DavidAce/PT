@@ -49,14 +49,11 @@ public:
     int T_ID;
     double T;
     ArrayXd T_ladder;
-    ArrayXi T_address;  //Array mapping world_ID  to which T_ID
-
+//    ArrayXi T_address;  //Array mapping world_ID  to which T_ID
+    int world_ID_up, world_ID_dn;
     double E_avg, E_avg_sq;
     double M_avg, M_avg_sq;
 
-
-    vector<double> E_samples;
-    vector<double> M_samples;
 
     //Lattice
     class_model model;
