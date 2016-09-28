@@ -10,7 +10,7 @@
 #include <ratio>
 #include <numeric>
 #include "class_PT_worker.h"
-#include "class_PT_print_data.h"
+#include "class_PT_output.h"
 #include "nmspc_PT_constants.h"
 #include "nmspc_PT_parallel_algorithms.h"
 void paralleltempering  (class_worker &worker);

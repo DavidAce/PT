@@ -13,6 +13,8 @@
 #include <Eigen/Dense>
 #include <set>
 #include <iterator>
+#include "class_PT_input.h"
+#include "class_PT_output.h"
 #include "class_model.h"
 #include "class_tic_toc.h"
 #include "nmspc_PT_constants.h"
@@ -54,13 +56,17 @@ public:
     double E_avg, E_avg_sq;
     double M_avg, M_avg_sq;
 
-
+    //Read simulation specifications
+    input in;
+    output out;
     //Lattice
     class_model model;
     //PT Energy and Order parameter
     double E,M;                         //Current Energy and Order parameter
     double E_trial, M_trial;                 //Proposed
-
+    Array<int ,   PT_constants::rate_store_samples, 1> T_history;
+    Array<double, PT_constants::rate_store_samples ,1> E_history;
+    Array<double, PT_constants::rate_store_samples ,1> M_history;
 
     //PT acceptance criterion
     bool accept;

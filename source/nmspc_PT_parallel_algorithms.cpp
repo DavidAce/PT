@@ -13,11 +13,11 @@ namespace mpi {
         if (timer::swap++ > PT_constants::rate_swap) {
             timer::swap = 0;
             worker.t_swap.tic();
-            counter::swaps++;
+            counter::swap_trials++;
             int swap;
             double E_up;
             double P_swap;      //Swap probability
-            bool myTurn = math::mod(worker.T_ID, 2) == math::mod(counter::swaps, 2);
+            bool myTurn = math::mod(worker.T_ID, 2) == math::mod(counter::swap_trials, 2);
 
 //            int  up, dn;
 //            for (int i = 0; i < worker.world_size; i++){
@@ -164,6 +164,22 @@ namespace mpi {
         }
     }
 
+    void store(class_worker &worker, output &out, bool force){
+        if (counter::samples == PT_constants::rate_store_samples || force){
+            //Reorder E
+            for (int i = 0; i < counter::samples; i++){
+                MPI_Sendrecv_replace(&worker.E_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            //Reorder M
+            for (int i = 0; i < counter::samples; i++){
+                MPI_Sendrecv_replace(&worker.M_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+            out.store_samples(worker,counter::store);
+            counter::store++;
+            counter::samples = 0;
+        }
+    }
 }
 
 

@@ -2,7 +2,7 @@
 // Created by david on 2016-07-26.
 //
 #include <iomanip>
-#include "class_PT_print_data.h"
+#include "class_PT_output.h"
 #ifdef __linux__
 #define os 0
 #elif _WIN32
@@ -12,29 +12,113 @@
 #endif
 
 
-
-void outdata::write_data_worker(class_worker &worker) {
-//    string name_dos     = folder + string("dos") + to_string(worker.world_ID) + string(".dat");
-//    string name_E_bins  = folder + string("E") + to_string(worker.world_ID) + string(".dat");
-//    string name_M_bins  = folder + string("M") + to_string(worker.world_ID) + string(".dat");
-//    write_to_file(worker.dos, name_dos);
-//    write_to_file(worker.E_bins, name_E_bins);
-//    write_to_file(worker.M_bins, name_M_bins);
-}
-
-void outdata::write_data_master(class_worker &worker){
-    if (worker.world_ID == 0) {
-//        set_foldername_to_iteration(worker.iteration);
-//        string name_dos    = folder + string("dos.dat");
-//        string name_E_bins = folder + string("E.dat");
-//        string name_M_bins = folder + string("M.dat");
-//        write_to_file(worker.dos_total, name_dos);
-//        write_to_file(worker.E_bins_total, name_E_bins);
-//        write_to_file(worker.M_bins_total, name_M_bins);
+void output::store_samples(class_worker &worker, int store){
+    //If store == 0, create folders
+    if (store == 0){
+        folder ="output/"  + input::job_name + "/timeseries/";
+        create_folder_master(worker.world_ID);
+        write_to_file(worker.E_history, folder + "E" + std::to_string(worker.world_ID));
+        write_to_file(worker.M_history, folder + "M" + std::to_string(worker.world_ID));
+    }else{
+        append_to_file(worker.E_history,folder +  "E" + std::to_string(worker.world_ID));
+        append_to_file(worker.E_history,folder +  "M" + std::to_string(worker.world_ID));
     }
 }
 
-//void outdata::write_data_thermo(class_thermodynamics &thermo, const int &iter){
+
+
+
+int output::mkdir_p(const char *path){
+    /* Adapted from http://stackoverflow.com/a/2336245/119527 */
+    const size_t len = strlen(path);
+    char _path[PATH_MAX];
+    char *p;
+
+    errno = 0;
+
+    /* Copy string so its mutable */
+    if (len > sizeof(_path)-1) {
+        errno = ENAMETOOLONG;
+        return -1;
+    }
+    strcpy(_path, path);
+
+    /* Iterate the string */
+    for (p = _path + 1; *p; p++) {
+        if (*p == '/') {
+            /* Temporarily truncate */
+            *p = '\0';
+
+            if (mkdir(_path, S_IRWXU) != 0) {
+                if (errno != EEXIST)
+                    return -1;
+            }
+
+            *p = '/';
+        }
+    }
+
+    if (mkdir(_path, S_IRWXU) != 0) {
+        if (errno != EEXIST)
+            return -1;
+    }
+
+    return 0;
+}
+
+void output::create_folder(string folder_name){
+
+    if (mkdir_p(folder_name.c_str()) == 0)
+    {
+        cout << "Set folder: " << folder_name << endl;
+
+    }else{
+        cout << "Failed to set folder: " << folder_name << endl;
+    }
+}
+
+void output::create_folder_master(const int &id){
+    if(id == 0){
+        create_folder(folder);
+    }
+}
+
+void output::create_folder_worker(){
+    create_folder(folder);
+}
+
+
+//Default constructor (does not set folder! make sure to set it yourself!
+output::output() {
+
+}
+
+
+//
+//void output::write_data_worker(class_worker &worker) {
+////    string name_dos     = folder + string("dos") + to_string(worker.world_ID) + string(".dat");
+////    string name_E_bins  = folder + string("E") + to_string(worker.world_ID) + string(".dat");
+////    string name_M_bins  = folder + string("M") + to_string(worker.world_ID) + string(".dat");
+////    write_to_file(worker.dos, name_dos);
+////    write_to_file(worker.E_bins, name_E_bins);
+////    write_to_file(worker.M_bins, name_M_bins);
+//}
+//
+//void output::write_data_master(class_worker &worker){
+//    if (worker.world_ID == 0) {
+////        set_foldername_to_iteration(worker.iteration);
+////        string name_dos    = folder + string("dos.dat");
+////        string name_E_bins = folder + string("E.dat");
+////        string name_M_bins = folder + string("M.dat");
+////        write_to_file(worker.dos_total, name_dos);
+////        write_to_file(worker.E_bins_total, name_E_bins);
+////        write_to_file(worker.M_bins_total, name_M_bins);
+//    }
+//}
+
+
+
+//void output::write_data_thermo(class_thermodynamics &thermo, const int &iter){
 //    create_iteration_folder_worker(iter);
 //    string name_T       = folder + string("T.dat");
 //    string name_s       = folder + string("s.dat");
@@ -68,9 +152,9 @@ void outdata::write_data_master(class_worker &worker){
 //    write_to_file(thermo.P, name_P);
 //}
 //
-//void outdata::write_final_data(class_stats &stats, const int &id){
+//void output::write_final_data(class_stats &stats, const int &id){
 //    if (id == 0) {
-//        folder = "outdata/final/";
+//        folder = "output/final/";
 //        create_folder(folder);
 //        string name_E       = folder + string("E.dat");
 //        string name_M       = folder + string("M.dat");
@@ -146,84 +230,18 @@ void outdata::write_data_master(class_worker &worker){
 
 
 //
-//void outdata::set_foldername_to_iteration(const int &iter){
+//void output::set_foldername_to_iteration(const int &iter){
 //    iteration = iter;
 //    //Set folder for out data storage
 //    switch (os) {
 //        case 0:
-//            folder = "outdata/" + to_string(iteration) + string("/");
+//            folder = "output/" + to_string(iteration) + string("/");
 //            break;
 //        case 1:
-//            folder = "..\\outdata\\" + to_string(iteration) + "\\";
+//            folder = "..\\output\\" + to_string(iteration) + "\\";
 //            break;
 //        default:
-//            folder = "outdata/" + to_string(iteration) + string("/");
+//            folder = "output/" + to_string(iteration) + string("/");
 //            break;
 //    }
 //}
-
-int outdata::mkdir_p(const char *path)
-{
-    /* Adapted from http://stackoverflow.com/a/2336245/119527 */
-    const size_t len = strlen(path);
-    char _path[PATH_MAX];
-    char *p;
-
-    errno = 0;
-
-    /* Copy string so its mutable */
-    if (len > sizeof(_path)-1) {
-        errno = ENAMETOOLONG;
-        return -1;
-    }
-    strcpy(_path, path);
-
-    /* Iterate the string */
-    for (p = _path + 1; *p; p++) {
-        if (*p == '/') {
-            /* Temporarily truncate */
-            *p = '\0';
-
-            if (mkdir(_path, S_IRWXU) != 0) {
-                if (errno != EEXIST)
-                    return -1;
-            }
-
-            *p = '/';
-        }
-    }
-
-    if (mkdir(_path, S_IRWXU) != 0) {
-        if (errno != EEXIST)
-            return -1;
-    }
-
-    return 0;
-}
-
-void outdata::create_folder(string folder_name){
-
-    if (mkdir_p(folder_name.c_str()) == 0)
-    {
-        cout << "Set folder: " << folder_name << endl;
-
-    }else{
-        cout << "Failed to set folder: " << folder_name << endl;
-    }
-}
-
-void outdata::create_iteration_folder_master(const int &iter, const int &id){
-    if(id == 0){
-        create_folder(folder);
-    }
-}
-
-void outdata::create_iteration_folder_worker(const int &iter){
-    create_folder(folder);
-}
-
-
-//Default constructor (does not set folder! make sure to set it yourself!
-outdata::outdata() {
-
-}

@@ -10,17 +10,17 @@
 
 
 void paralleltempering(class_worker &worker){
-    outdata out;
+    output out;
     worker.t_total.tic();
     worker.t_print.tic();
     for (int i = 0; i < PT_constants::MCS_sample + PT_constants::MCS_warmup; i++){
         sweep          (worker);
-        //sample         (worker);
+        sample         (worker);
+        mpi::store     (worker,out,false);
         mpi::swap      (worker);
         print_status   (worker);
     }
-    out.write_data_worker  (worker) ;
-    out.write_data_master  (worker) ;
+    mpi::store(worker,out,true);
 }
 
 
@@ -41,10 +41,12 @@ void sweep(class_worker &worker){
 }
 
 void sample(class_worker &worker){
-
-
-
-
+    if (counter::MCS >= PT_constants::MCS_warmup) {
+        worker.T_history(counter::samples) = worker.T_ID;
+        worker.E_history(counter::samples) = worker.E;
+        worker.M_history(counter::samples) = worker.M;
+        counter::samples++;
+    }
 }
 
 void print_status(class_worker &worker) {

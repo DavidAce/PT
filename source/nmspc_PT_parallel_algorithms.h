@@ -12,10 +12,11 @@
 
 
 #include "class_PT_worker.h"
+#include "class_PT_output.h"
 //class class_worker;
 namespace mpi {
-    extern void swap                           (class_worker &) ;
-
+    extern void swap            (class_worker &) ;
+    extern void store           (class_worker &, output &, bool force) ;
 
     template <typename Derived, typename mpitype>
     void bcast_dynamic (ArrayBase<Derived> &arr, mpitype MPI_TYPE , int master_id){

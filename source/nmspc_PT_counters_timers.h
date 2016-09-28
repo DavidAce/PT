@@ -11,9 +11,10 @@ namespace counter {
     extern int MCS;
     extern int accepts;
     extern int samples;
-    extern int swaps;
+    extern int swap_trials;
     extern int swap_accepts;
-    extern int merges;
+    extern int store;
+
 	
 };
 

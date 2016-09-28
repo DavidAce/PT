@@ -18,8 +18,9 @@ using namespace Eigen;
 int counter::MCS;
 int counter::accepts;
 int counter::samples;
-int counter::swaps;
+int counter::swap_trials;
 int counter::swap_accepts;
+int counter::store;
 int timer::print;
 int timer::swap;
 
@@ -57,8 +58,9 @@ void class_worker::start_counters() {
     counter::MCS                = 0;
     counter::accepts            = 0;
     counter::samples            = 0;
-    counter::swaps              = 0;
+    counter::swap_trials        = 0;
     counter::swap_accepts       = 0;
+    counter::store              = 0;
     timer::print                = 0;
     timer::swap 				= 0;
 }
