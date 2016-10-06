@@ -10,55 +10,62 @@
 #include <fstream>
 #include <string>
 #include <vector>
-//This class reads settings that may exist in the folder named input/
-namespace PT_settings{
-    //Model settings
-    int L;
-    double J1;
-    double J2;
-    //Simulation settings
-    int warmup_MCS;
-    int sample_MCS;
-
-}
-
-
-
+#include <sstream>
+#include <string.h>
+#include <cstdlib>
+#include <mpi.h>
+#include <math.h>
 class input {
+
 private:
-    bool folder_existence_check();
-    bool file_existence_check();
-    bool file_existence_check(const std::string filename);
-    int  file_counter();
-    int  num_files_in_folder;
-    bool folder_exists;
-    bool file_exists;
+    double T_min;
+    double T_max;
+    int J;
 
-    std::string pathname;
+    int L;
+    int d;
+    int N;
+
+    int MCS_warmup;
+    int MCS_sample;
+
+
+    void broadcast_string(std::string&,int);
     std::string filename;
-
+    std::string job_name;
+    bool        job_given;
 public:
-    input(int job): job_id(job){
-        pathname = "input/";
-        if (job_id >= 0){
-            job_given           = true;
-            job_name            = std::to_string(job_id);
-            folder_exists       = folder_existence_check();
-            filename            = pathname + job_name + ".dat";
-            load_settings_from_file();
-        }else{
+    input(std::string &name, int world_ID): filename(name){
+        if (filename.empty()){
             job_given = false;
             job_name  = "default";
-            load_settings_default();
+            load_settings_from_file("input/default.dat",world_ID);
+        }else{
+            job_given           = true;
+            job_name            = shave_path(filename);
+            load_settings_from_file(filename, world_ID);
         }
+        broadcast_parameters(world_ID);
     }
-    bool        job_given;
-    int         job_id;
-    std::string job_name;
+    double      get_T_min();
+    double      get_T_max();
+    int         get_J();
 
+    int         get_L();
+    int         get_d();
+    int         get_N();
+    int         get_MCS_warmup();
+    int         get_MCS_sample();
+    std::string get_filename();
+    std::string get_job_name();
+    void        broadcast_parameters(int world_ID);
+    std::string shave_path(std::string filename);
 
-    void load_settings_default();
-    void load_settings_from_file();
+    void load_settings_from_file(std::string filename,int world_ID);
+
+    bool folder_exists(const std::string path);
+    bool file_exists(const std::string name);
+
 };
 
 

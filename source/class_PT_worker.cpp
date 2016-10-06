@@ -28,7 +28,7 @@ int timer::swap;
 class_worker::class_worker(int & id, int & size):
                                 world_ID(id),
                                 world_size(size),
-                                model(),
+                                model(PT_constants::L, PT_constants::J),
                                 t_total                (profiling_total,                3,"Total Time"),
                                 t_print                (profiling_print,                3,"Time"),
                                 t_sweep                (profiling_sweep,                3,"t_sweep"),
@@ -110,7 +110,6 @@ std::ostream &operator<<(std::ostream &os, const class_worker &worker) {
        << "     E_trial = " << worker.E_trial
        << "     M_trial = " << worker.M_trial
        << endl;
-
     return os;
 }
 

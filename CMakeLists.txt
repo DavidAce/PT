@@ -64,5 +64,5 @@ endforeach()
 list(REMOVE_DUPLICATES PT_INCLUDE_DIRS)
 
 include_directories(${PT_INCLUDE_DIRS})
-add_executable (PT main.cpp ${PT_SOURCES} source/PT.cpp source/PT.h source/class_PT_input.cpp source/class_PT_input.h)
+add_executable (PT main.cpp ${PT_SOURCES})
 

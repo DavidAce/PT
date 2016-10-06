@@ -56,9 +56,7 @@ public:
     double E_avg, E_avg_sq;
     double M_avg, M_avg_sq;
 
-    //Read simulation specifications
-    input in;
-    output out;
+
     //Lattice
     class_model model;
     //PT Energy and Order parameter

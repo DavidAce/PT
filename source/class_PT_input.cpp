@@ -4,93 +4,161 @@
 
 #include "class_PT_input.h"
 
-bool input::folder_existence_check(){
+bool input::folder_exists(const std::string path){
     struct stat info;
     if( info.st_mode & S_IFDIR ) {
-        printf("%Found directory: %s ", pathname);
+        printf("%Found directory: %s ", path);
         return true;
     }
     else {
-        printf("Folder does not exist: %s\n", pathname);
-        printf( "Error: Provided settings argument %d but can't find folder: %s\n", job_id, pathname );
-        exit(1);
+        printf("Folder does not exist: %s\n", path);
+        return false;
     }
 }
 
 
-bool input::file_existence_check() {
+bool input::file_exists(const std::string name) {
     struct stat buffer;
-    std::string filename = pathname + std::to_string(job_id);
-    return (stat (pathname.c_str(), &buffer) == 0);
-}
-
-bool input::file_existence_check(const std::string filename) {
-    struct stat buffer;
-    return (stat (filename.c_str(), &buffer) == 0);
-}
-
-
-int input::file_counter(){
-    int returnedCount = 0;
-    std::string filename = pathname + std::to_string(returnedCount) + ".dat";
-    while(file_existence_check(filename)){
-        returnedCount++;
-        filename = pathname + std::to_string(returnedCount) + ".dat";
-    }
-    return returnedCount;
-
-}
-
-void input::load_settings_from_file() {
-    std::ifstream infile;
-    std::vector<std::string> lines;
-    std::string line;
-    std::string number;
-    infile.open(filename);
-    if (!infile.is_open()) {
-        std::cout << "Could not open file with name: " << filename << std::endl;
-        exit(5);
-    }
-
+    return (stat (name.c_str(), &buffer) == 0);
 }
 
 
 
-ArrayXXd indata::read_file(string filename) {
-    ifstream infile;
-    vector<string> lines;
-    string line;
-    string number;
-    infile.open(filename);
 
-    if (!infile.is_open()) {
-        cout << "Could not open file with name: " << filename << endl;
-        MPI_Finalize();
-        exit(5);
-    }
-    unsigned long int rows = 0, cols = 0;
-    //Load all the lines first and count rows.
-    while (getline(infile,line)) {
-        lines.push_back(line);
-        rows++;
-    }
-    //Now count the number of elements on the  first line
-    stringstream stream(lines[0]);
-    while (!stream.eof()) {
-        stream >> number;
-        cols++;
-    }
-    //Now make your matrix and fill it with the contents of line[].
-    ArrayXXd result(rows, cols);
-    int j;
-    for (unsigned long int i = 0; i < rows; i++) {
-        stringstream new_stream;
-        new_stream << lines[i];
-        j = 0;
-        while (!new_stream.eof()) {
-            new_stream >> number;
-            result(i, j++) = std::stod(number);
+/** Function that reads in the values in the inputfile **/
+/************************************************************************************************/
+void input::load_settings_from_file(std::string filename, int world_ID){
+    printf("Reading parameters from file...\n");
+    std::ifstream inputFile;
+    std::string s_reader, t_reader;
+    inputFile.open(filename.c_str());
+
+    if (!inputFile.is_open()){
+        if (world_ID == 0) {
+            printf("Parameters file not found, exiting\n");
+            MPI_Abort(MPI_COMM_WORLD, 1);
+            exit(EXIT_FAILURE);
         }
     }
-    return result;
+
+    while (getline(inputFile,s_reader))
+    {
+        std::istringstream r_pick(s_reader);
+        r_pick >> t_reader;
+
+        if(t_reader=="T_min="){r_pick >> T_min;}
+        if(t_reader=="T_max="){r_pick >> T_max;}
+        if(t_reader=="J="){r_pick >> J;}
+        if(t_reader=="L="){r_pick >> L;}
+        if(t_reader=="d="){r_pick >> d;}
+        if(t_reader=="MCS_warmup="){r_pick >> MCS_warmup;}
+        if(t_reader=="MCS_sample="){r_pick >> MCS_sample;}
+    }
+    N = (int)pow(L,d);
+    inputFile.close();
+    printf("Successful reading of parameters.\n");
 }
+
+std::string input::shave_path(std::string filename){
+    size_t delim = filename.find_last_of("\\/") + 1;
+    size_t npos  = filename.find_last_of(".dat") - delim - 3;
+    return filename.substr(delim,npos );
+}
+
+
+/** get and set methods of the private variables defined in parameters.h **/
+/************************************************************************************************/
+
+double input::get_T_min()
+{
+    return T_min;
+}
+double input::get_T_max()
+{
+    return T_max;
+}
+
+int input::get_J()
+{
+    return J;
+}
+
+int input::get_L()
+{
+    return L;
+}
+
+int input::get_d()
+{
+    return d;
+}
+
+int input::get_N()
+{
+    return N;
+}
+
+int input::get_MCS_warmup()
+{
+    return MCS_warmup;
+}
+
+int input::get_MCS_sample()
+{
+    return MCS_sample;
+}
+
+std::string input::get_filename()
+{
+    return filename;
+}
+
+
+std::string input::get_job_name()
+{
+    return job_name;
+}
+
+
+
+
+/** Function which broadcasts all parameters to all other MPI processes **/
+/************************************************************************************************/
+void input::broadcast_parameters(int world_ID){
+
+    MPI_Bcast(&L         ,1, MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(&J         ,1, MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(&MCS_warmup,1, MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(&MCS_sample,1, MPI_INT,0,MPI_COMM_WORLD);
+    broadcast_string(filename,world_ID);
+
+}
+
+
+
+/** Function that takes a string and a rank number and receive or send the string dependning if root or not **/
+/*****************************************************************************************/
+void input::broadcast_string(std::string& s_broad,int world_ID){
+
+    int s_size;
+
+    if (world_ID == 0){
+        s_size = (int)s_broad.size() + 1;
+    }
+
+    MPI_Bcast(&s_size,1, MPI_UNSIGNED,0,MPI_COMM_WORLD);
+
+    char c_s_broad[s_size];
+
+    if (world_ID == 0){
+        strcpy(c_s_broad, s_broad.c_str());
+    }
+
+    MPI_Bcast(c_s_broad,s_size, MPI_CHAR,0,MPI_COMM_WORLD);
+
+    if (world_ID != 0){
+        std::string s_tmp(c_s_broad);
+        s_broad = s_tmp;
+    }
+}
+

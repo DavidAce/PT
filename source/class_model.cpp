@@ -15,8 +15,6 @@ void class_model::randomize_lattice() {
 }
 
 
-
-
 double class_model::get_E() {
     double E = 0;
     for(int i = 0; i < L; i ++){

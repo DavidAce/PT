@@ -175,7 +175,8 @@ namespace mpi {
             for (int i = 0; i < counter::samples; i++){
                 MPI_Sendrecv_replace(&worker.M_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
-            out.store_samples(worker,counter::store);
+            out.store_samples(worker.E_history, "E" +  std::to_string(worker.world_ID) ,counter::store);
+            out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) ,counter::store);
             counter::store++;
             counter::samples = 0;
         }

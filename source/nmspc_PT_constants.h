@@ -5,29 +5,31 @@
 #ifndef PT_NMSPC_PT_CONSTANTS_H
 #define PT_NMSPC_PT_CONSTANTS_H
 
-namespace PT_constants{
-    //PT boostrap properties
-    static const int simulation_reps = 8;      //Number of independent do_simulations
-    static const int bootstrap_reps  = 8;
+#include "class_PT_input.h"
 
-    //PT simulation length
-    static const int MCS_warmup = 2000;
-    static const int MCS_sample = 50000;
+namespace PT_constants {
+    //Job name (used for input and output of files)
+    extern std::string job_name;
 
     //PT thermodynamics properties
-    static const double T_min = 0.01;               //Minimum temperature for thermodynamic quantities
-    static const double T_max = 6;               //Maximum temperature for thermodynamic quantities
+    extern double T_min;            //Minimum temperature for thermodynamic quantities
+    extern double T_max;            //Maximum temperature for thermodynamic quantities
 
     //Lattice Properties
-    static const int d = 2;               //Dimension
-    static const int L = 8;               //Linear size
-    static const int N = (int) pow(L,d);  //Number of spins/particles
-
+    extern int J;                   //Interaction strength (coupling)
+    extern int d;                   //Dimension
+    extern int L;                   //Linear size
+    extern int N;                   //Number of spins/particles
+    //PT simulation length
+    extern int MCS_warmup;
+    extern int MCS_sample;
+    extern void copy_input(input &in);
 
     //Rates for checking and printing (MCS units)
-    static const int    rate_swap              = 10;       //How often to swap walkers in adjacent windows
-    static const int    rate_print_status      = 500;     //How often to print in terminal
-    static const int    rate_store_samples     = 10000;
+    static const int rate_swap          = 10;       //How often to swap walkers in adjacent windows
+    static const int rate_print_status  = 500;     //How often to print in terminal
+    static const int rate_store_samples = 10000;
+
 }
 
 #endif //PT_NMSPC_PT_CONSTANTS_H

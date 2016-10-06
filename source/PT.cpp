@@ -10,7 +10,7 @@
 
 
 void paralleltempering(class_worker &worker){
-    output out;
+    output out(worker.world_ID);
     worker.t_total.tic();
     worker.t_print.tic();
     for (int i = 0; i < PT_constants::MCS_sample + PT_constants::MCS_warmup; i++){
@@ -22,7 +22,6 @@ void paralleltempering(class_worker &worker){
     }
     mpi::store(worker,out,true);
 }
-
 
 void sweep(class_worker &worker){
     if(debug_sweep){debug_print(worker,"Starting MCS " + std::to_string(counter::MCS));}

@@ -12,18 +12,18 @@
 #endif
 
 
-void output::store_samples(class_worker &worker, int store){
-    //If store == 0, create folders
-    if (store == 0){
-        folder ="output/"  + input::job_name + "/timeseries/";
-        create_folder_master(worker.world_ID);
-        write_to_file(worker.E_history, folder + "E" + std::to_string(worker.world_ID));
-        write_to_file(worker.M_history, folder + "M" + std::to_string(worker.world_ID));
-    }else{
-        append_to_file(worker.E_history,folder +  "E" + std::to_string(worker.world_ID));
-        append_to_file(worker.E_history,folder +  "M" + std::to_string(worker.world_ID));
-    }
-}
+//void output::store_samples(class_worker &worker, int store){
+//    //If store == 0, create folders
+//    if (store == 0){
+//        folder ="output/"  + input::job_name + "/timeseries/";
+//        create_folder_master(worker.world_ID);
+//        write_to_file(worker.E_history, folder + "E" + std::to_string(worker.world_ID));
+//        write_to_file(worker.M_history, folder + "M" + std::to_string(worker.world_ID));
+//    }else{
+//        append_to_file(worker.E_history,folder +  "E" + std::to_string(worker.world_ID));
+//        append_to_file(worker.E_history,folder +  "M" + std::to_string(worker.world_ID));
+//    }
+//}
 
 
 
@@ -88,10 +88,7 @@ void output::create_folder_worker(){
 }
 
 
-//Default constructor (does not set folder! make sure to set it yourself!
-output::output() {
 
-}
 
 
 //
