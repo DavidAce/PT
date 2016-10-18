@@ -32,7 +32,6 @@ void input::load_settings_from_file(std::string filename, int world_ID){
     std::ifstream inputFile;
     std::string s_reader, t_reader;
     inputFile.open(filename.c_str());
-
     if (!inputFile.is_open()){
         if (world_ID == 0) {
             printf("Parameters file not found, exiting\n");
@@ -45,7 +44,6 @@ void input::load_settings_from_file(std::string filename, int world_ID){
     {
         std::istringstream r_pick(s_reader);
         r_pick >> t_reader;
-
         if(t_reader=="T_min="){r_pick >> T_min;}
         if(t_reader=="T_max="){r_pick >> T_max;}
         if(t_reader=="J="){r_pick >> J;}
@@ -112,7 +110,6 @@ std::string input::get_filename()
 {
     return filename;
 }
-
 
 std::string input::get_job_name()
 {
