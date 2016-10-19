@@ -13,10 +13,10 @@ int main(int argc, char **argv) {
     std::vector<std::string> args(argv, argv + argc);
     std::string settings_file;
     if (argc < 2){
-        std::cout << "Running with default settings" << endl;
+        if (world_ID == 0){std::cout << "Running with default settings" << endl;}
         settings_file = "input/default.dat";
     }else{
-        std::cout << "Running with file: " << args[1] << endl;
+        if (world_ID == 0){std::cout << "Running with file: " << args[1] << endl;}
         settings_file = args[1];
     }
     input in(settings_file, world_ID);

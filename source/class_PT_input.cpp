@@ -28,33 +28,36 @@ bool input::file_exists(const std::string name) {
 /** Function that reads in the values in the inputfile **/
 /************************************************************************************************/
 void input::load_settings_from_file(std::string filename, int world_ID){
-    printf("Reading parameters from file...\n");
     std::ifstream inputFile;
     std::string s_reader, t_reader;
     inputFile.open(filename.c_str());
+
     if (!inputFile.is_open()){
         if (world_ID == 0) {
-            printf("Parameters file not found, exiting\n");
+            printf("Parameter file not found, exiting\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
             exit(EXIT_FAILURE);
         }
-    }
+    }else {
+        if (world_ID == 0) {
+            printf("Reading parameters from file %s: ", filename);
+            while (getline(inputFile, s_reader)) {
+                std::istringstream r_pick(s_reader);
+                r_pick >> t_reader;
 
-    while (getline(inputFile,s_reader))
-    {
-        std::istringstream r_pick(s_reader);
-        r_pick >> t_reader;
-        if(t_reader=="T_min="){r_pick >> T_min;}
-        if(t_reader=="T_max="){r_pick >> T_max;}
-        if(t_reader=="J="){r_pick >> J;}
-        if(t_reader=="L="){r_pick >> L;}
-        if(t_reader=="d="){r_pick >> d;}
-        if(t_reader=="MCS_warmup="){r_pick >> MCS_warmup;}
-        if(t_reader=="MCS_sample="){r_pick >> MCS_sample;}
+                if (t_reader == "T_min=") { r_pick >> T_min; }
+                if (t_reader == "T_max=") { r_pick >> T_max; }
+                if (t_reader == "J=") { r_pick >> J; }
+                if (t_reader == "L=") { r_pick >> L; }
+                if (t_reader == "d=") { r_pick >> d; }
+                if (t_reader == "MCS_warmup=") { r_pick >> MCS_warmup; }
+                if (t_reader == "MCS_sample=") { r_pick >> MCS_sample; }
+            }
+            N = (int) pow(L, d);
+            inputFile.close();
+            printf("Successful reading of parameters.\n");
+        }
     }
-    N = (int)pow(L,d);
-    inputFile.close();
-    printf("Successful reading of parameters.\n");
 }
 
 std::string input::shave_path(std::string filename){
