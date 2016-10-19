@@ -7,10 +7,10 @@
 
 using namespace std;
 
-namespace mpi {
+namespace parallel {
     void swap(class_worker &worker) {
         //Use MPI Tag in the 100-200 range
-        if (timer::swap++ > PT_constants::rate_swap) {
+        if (timer::swap > PT_constants::rate_swap) {
             timer::swap = 0;
             worker.t_swap.tic();
             counter::swap_trials++;
@@ -18,13 +18,6 @@ namespace mpi {
             double E_up;
             double P_swap;      //Swap probability
             bool myTurn = math::mod(worker.T_ID, 2) == math::mod(counter::swap_trials, 2);
-
-//            int  up, dn;
-//            for (int i = 0; i < worker.world_size; i++){
-//                if (math::mod(worker.T_ID + 1, worker.world_size) == worker.T_address(i)){up = i;}
-//                if (math::mod(worker.T_ID - 1, worker.world_size) == worker.T_address(i)){dn = i;}
-//            }
-
             if (debug_swap) {
                 for (int w = 0; w < worker.world_size; w++) {
                     if (w == worker.world_ID) {
@@ -164,8 +157,8 @@ namespace mpi {
         }
     }
 
-    void store(class_worker &worker, output &out, bool force){
-        if (counter::samples == PT_constants::rate_store_samples || force){
+    void save(class_worker &worker, output &out, bool force){
+        if (counter::samples == PT_constants::rate_save || force){
             //Reorder E
             for (int i = 0; i < counter::samples; i++){
                 MPI_Sendrecv_replace(&worker.E_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);

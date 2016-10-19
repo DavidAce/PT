@@ -9,34 +9,24 @@
 
 
 
-void paralleltempering(class_worker &worker){
+void paralleltempering(class_worker &worker) {
     output out(worker.world_ID);
     worker.t_total.tic();
     worker.t_print.tic();
-    for (int i = 0; i < PT_constants::MCS_sample + PT_constants::MCS_warmup; i++){
-        sweep          (worker);
-        sample         (worker);
-        mpi::store     (worker,out,false);
-        mpi::swap      (worker);
-        print_status   (worker);
+    for (int i = 0; i < PT_constants::MCS_sample + PT_constants::MCS_warmup; i++) {
+        worker.sweep();
+        if (timer::samp >= PT_constants::rate_samp) { sample(worker); }
+        if (timer::save >= PT_constants::rate_save) { parallel::save(worker, out, false); }
+        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
+        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
+        counter::MCS++;
+        timer::samp++;
+        timer::save++;
+        timer::swap++;
+        timer::cout++;
     }
-    mpi::store(worker,out,true);
-}
-
-void sweep(class_worker &worker){
-    if(debug_sweep){debug_print(worker,"Starting MCS " + std::to_string(counter::MCS));}
-    worker.t_sweep.tic();
-    for (int i = 0; i < PT_constants::N ; i++){
-        worker.make_MC_trial();
-        worker.acceptance_criterion();
-        if(worker.accept){
-            worker.accept_MC_trial();
-        }else{
-            worker.reject_MC_trial();
-        }
-    }
-    counter::MCS++;
-    worker.t_sweep.toc();
+    parallel::save(worker, out, true);
+    print_status(worker, true);
 }
 
 void sample(class_worker &worker){
@@ -48,9 +38,9 @@ void sample(class_worker &worker){
     }
 }
 
-void print_status(class_worker &worker) {
-    if (timer::print++ >= PT_constants::rate_print_status){
-        timer::print = 0;
+void print_status(class_worker &worker,bool override) {
+    if (timer::cout >= PT_constants::rate_cout || override){
+        timer::cout = 0;
         worker.t_total.toc();
         worker.t_print.toc();
         for (int i = 0; i < worker.world_size; i++){
@@ -58,6 +48,7 @@ void print_status(class_worker &worker) {
                 if (worker.T_ID == 0){cout << endl;}
                 cout << fixed << showpoint;
                 cout << "T_ID: "        << left << setw(3) << i;
+                cout << "W_ID: "        << left << setw(3) << worker.world_ID;
                 cout << " T: "          << left << setw(6) << worker.T;
 
                 if(debug_status){

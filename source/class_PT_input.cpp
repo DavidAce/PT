@@ -24,7 +24,6 @@ bool input::file_exists(const std::string name) {
 
 
 
-
 /** Function that reads in the values in the inputfile **/
 /************************************************************************************************/
 void input::load_settings_from_file(std::string filename, int world_ID){
@@ -40,7 +39,7 @@ void input::load_settings_from_file(std::string filename, int world_ID){
         }
     }else {
         if (world_ID == 0) {
-            printf("Reading parameters from file %s: ", filename);
+            printf("Reading parameters from file %s: ", filename.c_str());
             while (getline(inputFile, s_reader)) {
                 std::istringstream r_pick(s_reader);
                 r_pick >> t_reader;
@@ -55,9 +54,10 @@ void input::load_settings_from_file(std::string filename, int world_ID){
             }
             N = (int) pow(L, d);
             inputFile.close();
-            printf("Successful reading of parameters.\n");
+            printf("Success!\n");
         }
     }
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 std::string input::shave_path(std::string filename){
@@ -125,11 +125,14 @@ std::string input::get_job_name()
 /** Function which broadcasts all parameters to all other MPI processes **/
 /************************************************************************************************/
 void input::broadcast_parameters(int world_ID){
-
-    MPI_Bcast(&L         ,1, MPI_INT,0,MPI_COMM_WORLD);
-    MPI_Bcast(&J         ,1, MPI_INT,0,MPI_COMM_WORLD);
-    MPI_Bcast(&MCS_warmup,1, MPI_INT,0,MPI_COMM_WORLD);
-    MPI_Bcast(&MCS_sample,1, MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Bcast(&T_min     ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&T_max     ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&J         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&L         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&d         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&N         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&MCS_warmup,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&MCS_sample,1, MPI_INT   ,0,MPI_COMM_WORLD);
     broadcast_string(filename,world_ID);
 
 }

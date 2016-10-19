@@ -21,7 +21,9 @@ int counter::samples;
 int counter::swap_trials;
 int counter::swap_accepts;
 int counter::store;
-int timer::print;
+int timer::samp;
+int timer::save;
+int timer::cout;
 int timer::swap;
 
 //Constructors
@@ -46,7 +48,6 @@ class_worker::class_worker(int & id, int & size):
     E_avg_sq = E*E;
     M_avg_sq = M*M;
 
-
     start_counters();
     set_initial_temperatures();
     cout << "ID: " << world_ID << " Started OK"<<endl;
@@ -61,43 +62,31 @@ void class_worker::start_counters() {
     counter::swap_trials        = 0;
     counter::swap_accepts       = 0;
     counter::store              = 0;
-    timer::print                = 0;
+    timer::cout                = 0;
     timer::swap 				= 0;
 }
 
 
 void class_worker::set_initial_temperatures(){
     T_ladder  = ArrayXd::LinSpaced(world_size, PT_constants::T_min, PT_constants::T_max);
-//    T_address = ArrayXi::LinSpaced(world_size, 0, world_size - 1 );
     T = T_ladder(world_ID);
     T_ID = world_ID;
     world_ID_up = math::mod(world_ID + 1, world_size);
     world_ID_dn = math::mod(world_ID - 1, world_size);
-
 }
 
-void class_worker::make_MC_trial()  {
-    t_make_MC_trial.tic();
-    model.make_new_state(E,M, E_trial, M_trial);
-    t_make_MC_trial.toc();
+void class_worker::sweep(){
+    t_sweep.tic();
+    for (int i = 0; i < PT_constants::N ; i++){
+        model.make_new_state(E,M, E_trial, M_trial);
+        if(rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T))){
+            E                           = E_trial;
+            M                           = M_trial;
+            model.flip();
+        }
+    }
+    t_sweep.toc();
 }
-
-void class_worker::acceptance_criterion(){
-    t_acceptance_criterion.tic();
-    accept = rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T));
-    t_acceptance_criterion.toc();
-}
-
-void class_worker::accept_MC_trial() {
-    E                           = E_trial;
-    M                           = M_trial;
-    model.flip();
-}
-
-void class_worker::reject_MC_trial() {
-
-}
-
 
 
 //Function for printing the lattice. Very easy if L is an Eigen matrix.

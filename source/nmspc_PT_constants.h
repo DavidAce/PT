@@ -21,14 +21,15 @@ namespace PT_constants {
     extern int L;                   //Linear size
     extern int N;                   //Number of spins/particles
     //PT simulation length
-    extern int MCS_warmup;
-    extern int MCS_sample;
+    extern int  MCS_warmup;
+    extern int  MCS_sample;
     extern void copy_input(input &in);
 
-    //Rates for checking and printing (MCS units)
-    static const int rate_swap          = 10;       //How often to swap walkers in adjacent windows
-    static const int rate_print_status  = 500;     //How often to print in terminal
-    static const int rate_store_samples = 10000;
+    //Rates for checking, sampling, storing and printing (MCS units)
+    static const int rate_samp = 1;
+    static const int rate_save = 10000;
+    static const int rate_swap = 10;       //How often to swap walkers in adjacent windows
+    static const int rate_cout = 500;     //How often to cout in terminal
 
 }
 

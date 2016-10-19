@@ -16,7 +16,7 @@
 void paralleltempering  (class_worker &worker);
 void sweep              (class_worker &worker);
 void sample             (class_worker &worker);
-void print_status       (class_worker &worker);
+void print_status       (class_worker &worker, bool override);
 
 template <typename T>
 void debug_print        (class_worker &worker, T input){
