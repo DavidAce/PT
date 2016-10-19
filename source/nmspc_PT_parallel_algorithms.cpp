@@ -133,16 +133,16 @@ namespace mpi {
                 if (myTurn == 1) {
                     worker.T_ID = math::mod(worker.T_ID + 1, worker.world_size);
                     worker.T = worker.T_ladder(worker.T_ID);
-                    MPI_Sendrecv_replace(&worker.E_avg,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Sendrecv_replace(&worker.E_avg,   1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Sendrecv_replace(&worker.M_avg,   1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     MPI_Sendrecv_replace(&worker.E_avg_sq,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     MPI_Sendrecv_replace(&worker.M_avg_sq,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                }
                 else {
                     worker.T_ID = math::mod(worker.T_ID - 1, worker.world_size);
                     worker.T = worker.T_ladder(worker.T_ID);
-                    MPI_Sendrecv_replace(&worker.E_avg,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Sendrecv_replace(&worker.E_avg,   1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                    MPI_Sendrecv_replace(&worker.M_avg,   1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     MPI_Sendrecv_replace(&worker.E_avg_sq,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                     MPI_Sendrecv_replace(&worker.M_avg_sq,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
@@ -175,8 +175,8 @@ namespace mpi {
             for (int i = 0; i < counter::samples; i++){
                 MPI_Sendrecv_replace(&worker.M_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
-            out.store_samples(worker.E_history, "E" +  std::to_string(worker.world_ID) ,counter::store);
-            out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) ,counter::store);
+            out.store_samples(worker.E_history, "E" +  std::to_string(worker.world_ID) + ".dat",counter::store);
+            out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) + ".dat",counter::store);
             counter::store++;
             counter::samples = 0;
         }

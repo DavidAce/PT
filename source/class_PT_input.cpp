@@ -114,7 +114,6 @@ std::string input::get_filename()
     return filename;
 }
 
-
 std::string input::get_job_name()
 {
     return job_name;
