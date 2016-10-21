@@ -32,6 +32,7 @@ namespace PT_constants{
        MCS_warmup   = in.get_MCS_warmup();
        MCS_sample   = in.get_MCS_sample();
        job_name     = in.get_job_name();
+       filename     = in.get_filename();
    }
 
 }

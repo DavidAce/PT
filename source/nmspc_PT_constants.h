@@ -10,6 +10,7 @@
 namespace PT_constants {
     //Job name (used for input and output of files)
     extern std::string job_name;
+    extern std::string filename;
 
     //PT thermodynamics properties
     extern double T_min;            //Minimum temperature for thermodynamic quantities
@@ -30,6 +31,9 @@ namespace PT_constants {
     static const int rate_save = 10000;
     static const int rate_swap = 10;       //How often to swap walkers in adjacent windows
     static const int rate_cout = 500;     //How often to cout in terminal
+
+    //Number of bootstrap cycles for error calculation
+
 
 }
 

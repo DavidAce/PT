@@ -55,6 +55,7 @@ public:
         file << data.format(fmt) << endl;
         file.close();
     }
+
     template<typename Derived>
     void write_to_file(const ArrayBase<Derived> &data, string filename){
         ofstream file(filename,ios::out | ios::trunc);
@@ -74,6 +75,7 @@ public:
         file << data.format(fmt) << endl;
         file.close();
     }
+
     template<typename Derived>
     void append_to_file(const ArrayBase<Derived> &data, string filename){
         ofstream file(filename,ios::out | ios::app);
