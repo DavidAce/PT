@@ -126,24 +126,15 @@ namespace parallel {
                 if (myTurn == 1) {
                     worker.T_ID = math::mod(worker.T_ID + 1, worker.world_size);
                     worker.T = worker.T_ladder(worker.T_ID);
-                    MPI_Sendrecv_replace(&worker.E_avg,   1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg,   1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.E_avg_sq,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg_sq,1,MPI_DOUBLE, worker.world_ID_up, worker.world_ID, worker.world_ID_up, worker.world_ID_up, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                }
                 else {
                     worker.T_ID = math::mod(worker.T_ID - 1, worker.world_size);
                     worker.T = worker.T_ladder(worker.T_ID);
-                    MPI_Sendrecv_replace(&worker.E_avg,   1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg,   1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.E_avg_sq,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                    MPI_Sendrecv_replace(&worker.M_avg_sq,1,MPI_DOUBLE, worker.world_ID_dn, worker.world_ID, worker.world_ID_dn, worker.world_ID_dn, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 }
             }
 
             worker.world_ID_dn = world_ID_dn_new;
             worker.world_ID_up = world_ID_up_new;
-//            MPI_Allgather(&worker.T_ID, 1, MPI_INT, worker.T_address.data(), 1, MPI_INT, MPI_COMM_WORLD);
             counter::swap_accepts += swap;
             if (debug_swap) {
                 for (int w = 0; w < worker.world_size; w++) {
@@ -172,6 +163,8 @@ namespace parallel {
             out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) + ".dat",counter::store);
             counter::store++;
             counter::samples = 0;
+            MPI_Barrier(MPI_COMM_WORLD);
+
         }
     }
 }

@@ -6,10 +6,23 @@
 namespace rn{
     std::mt19937 rng;
 
-    std::uniform_int_distribution<>  rand_int_L(0, L-1);
-    std::uniform_int_distribution<>  rand_int_1(0, 1);
+    ArrayXd random_with_replacement(const ArrayXd & in){
+        vector<double> boot;
+        for (int i = 0; i < in.derived().size(); i++){
+            boot.push_back(in(uniform_integer(0,(int)(in.size()-1))));
+        }
+        return Eigen::Map<ArrayXd>(boot.data(),boot.size());
+    }
+    ArrayXd random_with_replacement(const ArrayXd & in, const int n){
+        vector<double> boot;
+        if (n > in.size()){cout << "n too large" << endl; exit(1);}
+        for (int i = 0; i < n; i++){
+            boot.push_back(in(uniform_integer(0,(int)(in.size()-1))));
+        }
+        return Eigen::Map<ArrayXd>(boot.data(),boot.size());
+    }
 
-    std::uniform_real_distribution<> rand_real_1(0,1);
+
     double gaussian_truncated(const double lowerLimit, const double upperLimit, const double mean, const double std) {
         std::normal_distribution<double> distribution(mean,std);
         double ul = fmax(lowerLimit, upperLimit);

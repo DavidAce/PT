@@ -42,7 +42,7 @@ public:
             create_folder_master(world_ID);
             write_to_file(data, folder + name);
         }else{
-            write_to_file(data, folder + name);
+            append_to_file(data, folder + name);
         }
     }
 
@@ -53,6 +53,7 @@ public:
         string      _coeffSeparator = "	";
         IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
         file << data.format(fmt) << endl;
+        file.flush();
         file.close();
     }
 
@@ -63,6 +64,7 @@ public:
         string      _coeffSeparator = "	";
         IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
         file << data.format(fmt) << endl;
+        file.flush();
         file.close();
     }
 
@@ -73,6 +75,7 @@ public:
         string      _coeffSeparator = "	";
         IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
         file << data.format(fmt) << endl;
+        file.flush();
         file.close();
     }
 
@@ -83,6 +86,7 @@ public:
         string      _coeffSeparator = "	";
         IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
         file << data.format(fmt) << endl;
+        file.flush();
         file.close();
     }
 

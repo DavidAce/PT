@@ -43,10 +43,10 @@ class_worker::class_worker(int & id, int & size):
     model.randomize_lattice();
     E        = model.get_E();
     M        = model.get_M();
-    E_avg    = E;
-    M_avg    = M;
-    E_avg_sq = E*E;
-    M_avg_sq = M*M;
+//    E_avg    = E;
+//    M_avg    = M;
+//    E_avg_sq = E*E;
+//    M_avg_sq = M*M;
 
     start_counters();
     set_initial_temperatures();
@@ -73,6 +73,7 @@ void class_worker::set_initial_temperatures(){
     T_ID = world_ID;
     world_ID_up = math::mod(world_ID + 1, world_size);
     world_ID_dn = math::mod(world_ID - 1, world_size);
+    thermo.T = T;
 }
 
 void class_worker::sweep(){

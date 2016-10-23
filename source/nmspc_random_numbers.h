@@ -6,8 +6,11 @@
 #define WL_NMSPC_RANDOM_NUMBERS_H
 #include <random>
 #include <iostream>
+#include <Eigen/Core>
+
 #include "nmspc_PT_constants.h"
 using namespace std;
+using namespace Eigen;
 using namespace PT_constants;
 namespace rn{
     //typedef std::mt19937 RNGType;
@@ -33,6 +36,9 @@ namespace rn{
         std::uniform_real_distribution<>  rand_real(0,1);
         return rand_real(rng);
     }
+
+    extern ArrayXd random_with_replacement(const ArrayXd & in);
+    extern ArrayXd random_with_replacement(const ArrayXd & in, const int n);
 
     extern double gaussian_truncated(const double lowerLimit, const double upperLimit, const double mean, const double std) ;
 }

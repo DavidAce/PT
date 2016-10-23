@@ -12,7 +12,7 @@ namespace PT_constants {
     extern std::string job_name;
     extern std::string filename;
 
-    //PT thermodynamics properties
+    //PT class_thermo properties
     extern double T_min;            //Minimum temperature for thermodynamic quantities
     extern double T_max;            //Maximum temperature for thermodynamic quantities
 
@@ -28,12 +28,12 @@ namespace PT_constants {
 
     //Rates for checking, sampling, storing and printing (MCS units)
     static const int rate_samp = 1;
-    static const int rate_save = 10000;
-    static const int rate_swap = 10;       //How often to swap walkers in adjacent windows
-    static const int rate_cout = 500;     //How often to cout in terminal
+    static const int rate_save = 5000;
+    static const int rate_swap = 40;       //How often to swap walkers in adjacent windows
+    static const int rate_cout = 5000;     //How often to cout in terminal
 
-    //Number of bootstrap cycles for error calculation
-
+    //Number of compute cycles for error calculation
+    static const int bootstraps = 10;
 
 }
 

@@ -8,9 +8,9 @@
 namespace PT_constants{
     //Job name (used for input and output of files)
     std::string job_name;
+    std::string filename;
 
-
-    //PT thermodynamics properties
+    //PT class_thermo properties
     double T_min;            //Minimum temperature for thermodynamic quantities
     double T_max;            //Maximum temperature for thermodynamic quantities
 

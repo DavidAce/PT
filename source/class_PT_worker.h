@@ -15,6 +15,7 @@
 #include <iterator>
 #include "class_model.h"
 #include "class_tic_toc.h"
+#include "class_PT_thermo.h"
 #include "nmspc_PT_constants.h"
 #include "nmspc_PT_counters_timers.h"
 #include "nmspc_math_algorithms.h"
@@ -50,12 +51,16 @@ public:
     double T;
     ArrayXd T_ladder;
     int world_ID_up, world_ID_dn;
-    double E_avg, E_avg_sq;
-    double M_avg, M_avg_sq;
+//    double E_avg, E_avg_sq;
+//    double M_avg, M_avg_sq;
 
 
     //Lattice
     class_model model;
+
+    //Thermodynamics
+    class_thermo thermo;
+
     //PT Energy and Order parameter
     double E,M;                         //Current Energy and Order parameter
     double E_trial, M_trial;                 //Proposed

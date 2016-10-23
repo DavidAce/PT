@@ -5,34 +5,52 @@
 #ifndef PT_CLASS_PT_THERMO_H
 #define PT_CLASS_PT_THERMO_H
 #include "nmspc_PT_constants.h"
-#include "class_PT_worker.h"
+#include "nmspc_random_numbers.h"
+#include <Eigen/Core>
+#include <Eigen/Dense>
+using namespace Eigen;
+using namespace std;
 
-class thermodynamics{
+class class_thermo{
 private:
-    int world_ID;
-    double T;
     ArrayXXd read_file(string);
     ArrayXd E,M;
 
 
-
 public:
-    thermodynamics(int id, double t): world_ID(id), T(t){};
+    class_thermo() {};
+    double T;
+    int    T_ID;
+
+
     double u, sigma_u;
+    double m, sigma_m;
     double c, sigma_c;
     double x, sigma_x;
 
-    void   load_data();
-    void   bootstrap_error  ();
-    double flyvbjerg_error  (const ArrayXd & A);
+    double sigma_u_naive;
+    double sigma_u_flyv;
+
+    double tau;
+
+
+    void   load_data(int temperature_ID, double temperature);
+    void   compute();
+    double flyvbjerg  (const ArrayXd & A); //Computes the effective standard deviation of a correlated series
     void   block_transform  (ArrayXd & B);
 
+    void   autocorrelation      ();
     void   internal_energy      ();
+    void   magnetization        ();
     void   specific_heat        ();
     void   susceptibility       ();
+    double autocorrelation      (const ArrayXd &E);
     double internal_energy      (const ArrayXd &E);
+    double magnetization        (const ArrayXd &E);
     double specific_heat        (const ArrayXd &E);
     double susceptibility       (const ArrayXd &M);
+
+    double variance             (const ArrayXd &A);
 
 };
 
