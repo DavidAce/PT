@@ -22,10 +22,6 @@ void class_thermo::compute(){
     tau = autocorrelation(E);
     tau = isnan(tau) ? 1 : tau;
     int n = (int)(E.size()/fmax(1,2*tau));
-//    while(2*E.size() > n){
-//        block_transform(E);
-//        block_transform(M);
-//    }
 
 
     ArrayXd E_bootstrap (E.size());
@@ -44,14 +40,12 @@ void class_thermo::compute(){
     c = c_b.mean();
     x = x_b.mean();
 
-//    sigma_u = sqrt(variance(u_b))*sqrt(2*tau);
-//    sigma_u_naive = sqrt(variance(E))/PT_constants::N / sqrt(E.size() / 2 / tau );
-    sigma_u = sqrt(variance(u_b));
-    sigma_u_naive = sqrt(variance(E))/PT_constants::N / sqrt(n );
-    sigma_u_flyv  = flyvbjerg(E)/PT_constants::N;
-    sigma_m = sqrt(variance(m_b));
-    sigma_c = sqrt(variance(c_b));
-    sigma_x = sqrt(variance(x_b));
+    sigma_u         = sqrt(variance(u_b));
+    sigma_u_naive   = sqrt(variance(E))/PT_constants::N / sqrt(n );
+    sigma_u_flyv    = flyvbjerg(E)/PT_constants::N;
+    sigma_m         = sqrt(variance(m_b));
+    sigma_c         = sqrt(variance(c_b));
+    sigma_x         = sqrt(variance(x_b));
 
 
 }

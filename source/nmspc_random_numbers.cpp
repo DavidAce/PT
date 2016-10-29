@@ -14,13 +14,27 @@ namespace rn{
         return Eigen::Map<ArrayXd>(boot.data(),boot.size());
     }
     ArrayXd random_with_replacement(const ArrayXd & in, const int n){
-        vector<double> boot;
         if (n > in.size()){cout << "n too large" << endl; exit(1);}
+        vector<double> boot;
         for (int i = 0; i < n; i++){
             boot.push_back(in(uniform_integer(0,(int)(in.size()-1))));
         }
         return Eigen::Map<ArrayXd>(boot.data(),boot.size());
     }
+
+    ArrayXd random_with_replacement(const ArrayXd & in, const int block_length){
+        if (block_length >= in.size){cout << "block_length too large!" << endl; exit(1)}
+        vector<double> boot;
+        int num_blocks = in.size() / block_length;
+        for (int nb = 0; nb < num_blocks; nb++){
+            int block = uniform_integer(0, num_blocks);
+            for (int i = 0; i < block_length; i++){
+                boot.push_back(i + block*block_length);
+            }
+        }
+        return Eigen::Map<ArrayXd>(boot.data(),boot.size());
+    }
+
 
 
     double gaussian_truncated(const double lowerLimit, const double upperLimit, const double mean, const double std) {

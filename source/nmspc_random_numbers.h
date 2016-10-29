@@ -37,8 +37,9 @@ namespace rn{
         return rand_real(rng);
     }
 
-    extern ArrayXd random_with_replacement(const ArrayXd & in);
-    extern ArrayXd random_with_replacement(const ArrayXd & in, const int n);
+    extern ArrayXd random_with_replacement(const ArrayXd & indata);
+    extern ArrayXd random_with_replacement(const ArrayXd & indata, const int num_choose);
+    extern ArrayXd random_with_replacement(const ArrayXd & indata, const int block_length);
 
     extern double gaussian_truncated(const double lowerLimit, const double upperLimit, const double mean, const double std) ;
 }
