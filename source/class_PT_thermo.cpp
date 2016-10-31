@@ -19,17 +19,12 @@ void class_thermo::compute(){
     ArrayXd m_b(PT_constants::bootstraps);
     ArrayXd c_b(PT_constants::bootstraps);
     ArrayXd x_b(PT_constants::bootstraps);
-    tau = autocorrelation(E);
-    tau = isnan(tau) ? 1 : tau;
-    int n = (int)(E.size()/fmax(1,2*tau));
-
 
     ArrayXd E_bootstrap (E.size());
     ArrayXd M_bootstrap (M.size());
-
     for (int i = 0; i < PT_constants::bootstraps ; i++ ){
-        E_bootstrap = rn::random_with_replacement(E,n);
-        M_bootstrap = rn::random_with_replacement(M,n);
+        E_bootstrap = rn::random_with_replacement(E);
+        M_bootstrap = rn::random_with_replacement(M);
         u_b(i) = internal_energy(E_bootstrap);
         m_b(i) = magnetization  (M_bootstrap);
         c_b(i) = specific_heat  (E_bootstrap);
@@ -40,20 +35,45 @@ void class_thermo::compute(){
     c = c_b.mean();
     x = x_b.mean();
 
-    sigma_u         = sqrt(variance(u_b));
-    sigma_u_naive   = sqrt(variance(E))/PT_constants::N / sqrt(n );
-    sigma_u_flyv    = flyvbjerg(E)/PT_constants::N;
-    sigma_m         = sqrt(variance(m_b));
-    sigma_c         = sqrt(variance(c_b));
-    sigma_x         = sqrt(variance(x_b));
+    sigma_u_flyv = flyvbjerg(E)/PT_constants::N;
+    sigma_u = sqrt(variance(u_b));
+    sigma_m = sqrt(variance(m_b));
+    sigma_c = sqrt(variance(c_b));
+    sigma_x = sqrt(variance(x_b));
 
+    tau_E = autocorrelation(E);
+    tau_M = autocorrelation(M);
+    tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
+    tau_M = isnan(tau_M) || tau_M < 1 ? 1 : tau_M;
+    int n_E = (int) (E.size()/fmax(1, tau_E)); // 2 tau is an improvement over tau
+    int n_M = (int) (M.size()/fmax(1, tau_M)); // 2 tau is an improvement over tau
+    for (int i = 0; i < PT_constants::bootstraps ; i++ ){
+        E_bootstrap = rn::random_with_replacement(E,n_E);
+        M_bootstrap = rn::random_with_replacement(M,n_M);
+        u_b(i) = internal_energy(E_bootstrap);
+        m_b(i) = magnetization  (M_bootstrap);
+        c_b(i) = specific_heat  (E_bootstrap);
+        x_b(i) = susceptibility (M_bootstrap);
+    }
+
+    sigma_u_tau   = sqrt(variance(u_b));
+    sigma_m_tau   = sqrt(variance(m_b));
+    sigma_c_tau   = sqrt(variance(c_b));
+    sigma_x_tau   = sqrt(variance(x_b));
+}
+
+
+void class_thermo::autocorrelation_E(){
+    if(E.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
+    tau_E = pow(flyvbjerg(E),2) / (variance(E)/(E.size()-1));
 
 }
 
 
-void class_thermo::autocorrelation(){
-    if(E.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-    tau = 0.5 * pow(flyvbjerg(E),2) / (variance(E)/(E.size()-1));
+
+void class_thermo::autocorrelation_M(){
+    if(M.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
+    tau_M = pow(flyvbjerg(M),2) / (variance(M)/(M.size()-1));
 
 }
 
@@ -77,9 +97,10 @@ void class_thermo::susceptibility  (){
     x    = variance(M.cwiseAbs())/T/PT_constants::N;
 }
 
-double class_thermo::autocorrelation(const ArrayXd &E){
-    return 0.5 * pow(flyvbjerg(E),2) / (variance(E)/(E.size()-1));
+double class_thermo::autocorrelation(const ArrayXd &A){
+    return pow(flyvbjerg(A),2) / (variance(A)/(A.size()-1));
 }
+
 
 double class_thermo::internal_energy(const ArrayXd &E){
     return E.mean() / PT_constants::N;

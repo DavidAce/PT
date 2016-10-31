@@ -23,15 +23,14 @@ public:
     int    T_ID;
 
 
-    double u, sigma_u;
-    double m, sigma_m;
-    double c, sigma_c;
-    double x, sigma_x;
+    double u, sigma_u, sigma_u_tau;
+    double m, sigma_m, sigma_m_tau;
+    double c, sigma_c, sigma_c_tau;
+    double x, sigma_x, sigma_x_tau;
 
-    double sigma_u_naive;
     double sigma_u_flyv;
 
-    double tau;
+    double tau_E, tau_M;
 
 
     void   load_data(int temperature_ID, double temperature);
@@ -39,7 +38,8 @@ public:
     double flyvbjerg  (const ArrayXd & A); //Computes the effective standard deviation of a correlated series
     void   block_transform  (ArrayXd & B);
 
-    void   autocorrelation      ();
+    void   autocorrelation_E      ();
+    void   autocorrelation_M      ();
     void   internal_energy      ();
     void   magnetization        ();
     void   specific_heat        ();

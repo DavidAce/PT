@@ -22,8 +22,8 @@ namespace rn{
         return Eigen::Map<ArrayXd>(boot.data(),boot.size());
     }
 
-    ArrayXd random_with_replacement(const ArrayXd & in, const int block_length){
-        if (block_length >= in.size){cout << "block_length too large!" << endl; exit(1)}
+    ArrayXd random_with_replacement(const ArrayXd & in, const int block_length, bool dummy){
+        if (block_length >= in.size()){cout << "block_length too large!" << endl; exit(1);}
         vector<double> boot;
         int num_blocks = in.size() / block_length;
         for (int nb = 0; nb < num_blocks; nb++){
