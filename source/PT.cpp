@@ -58,10 +58,10 @@ void print_status(class_worker &worker,bool override) {
                     cout << "W_ID: " << left << setw(3) << worker.world_ID;
                     cout << " T: " << left << setw(6)  << setprecision(3) << worker.T;
                     cout << " u: " << left << setw(6) << setprecision(4)  << worker.thermo.u
-                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_flyv << ")"
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau << ")"
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau2 << ")"
-                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_flyv << ")";
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u << ")";
                     cout << " m: " << left << setw(6) << setprecision(4)  << worker.thermo.m
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m     << ")"
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m_tau << ")"

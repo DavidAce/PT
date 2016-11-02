@@ -24,7 +24,7 @@ void class_thermo::compute(){
     tau_M = autocorrelation(M);
     tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
     tau_M = isnan(tau_M) || tau_M < 1 ? 1 : tau_M;
-    int block_length    = (int) ceil(10*tau_E);
+    int block_length    = (int) ceil(2*tau_E);
     int n_independent   = (int)(E.size()) / block_length;
 
 
@@ -51,66 +51,77 @@ void class_thermo::compute(){
     sigma_c = sqrt(variance(c_b));
     sigma_x = sqrt(variance(x_b));
 
+
+
+    block_length    = (int) ceil(20*tau_E);
+    n_independent   = (int)(E.size()) / block_length;
+
     u_b = bootstrap(E, "u", block_length);
     m_b = bootstrap(M, "m", block_length);
     c_b = bootstrap(E, "c", block_length);
     x_b = bootstrap(M, "x", block_length);
 
-    sigma_u_tau   = sqrt(variance(u_b)/n_independent);
-    sigma_m_tau   = sqrt(variance(m_b)/n_independent);
-    sigma_c_tau   = sqrt(variance(c_b)/n_independent);
-    sigma_x_tau   = sqrt(variance(x_b)/n_independent);
+    sigma_u_tau   = sqrt(variance(u_b));
+    sigma_m_tau   = sqrt(variance(m_b));
+    sigma_c_tau   = sqrt(variance(c_b));
+    sigma_x_tau   = sqrt(variance(x_b));
 
+    block_length    = (int) ceil(20*tau_E);
+    n_independent   = (int)(E.size()) / block_length;
     u_b = bootstrap2(E, "u", block_length);
     m_b = bootstrap2(M, "m", block_length);
     c_b = bootstrap2(E, "c", block_length);
     x_b = bootstrap2(M, "x", block_length);
 
-    sigma_u_tau2   = sqrt(variance(u_b)/n_independent);
-    sigma_m_tau2   = sqrt(variance(m_b)/n_independent);
-    sigma_c_tau2   = sqrt(variance(c_b)/n_independent);
-    sigma_x_tau2   = sqrt(variance(x_b)/n_independent);
+    sigma_u_tau2   = sqrt(variance(u_b));
+    sigma_m_tau2   = sqrt(variance(m_b));
+    sigma_c_tau2   = sqrt(variance(c_b));
+    sigma_x_tau2   = sqrt(variance(x_b));
 
 
 }
 
 ArrayXd class_thermo::bootstrap(const ArrayXd &in, string func, int block_length ){
-    vector<double> boot_avg;
-    ArrayXd boot_blk(block_length);
     int num_blocks = (int)(in.size()) / block_length;
-    for (int nb = 0; nb < num_blocks; nb++){
-        int block = rn::uniform_integer(0, num_blocks);
-        for (int i = 0; i < block_length; i++){
-            boot_blk(i) = in(i + block*block_length);
+    vector<double> boot_avg;
+
+    for (int bt = 0; bt < PT_constants::bootstraps; bt++){
+        vector<double> boot;
+        while(boot.size() < in.size()){
+            int block = rn::uniform_integer(0, num_blocks);
+            for (int i = 0; i < block_length; i++){
+                boot.push_back(in(i + block*block_length));
+            }
         }
-        if (func == "u"){ boot_avg.push_back(internal_energy(boot_blk));}
-        if (func == "m"){ boot_avg.push_back(magnetization  (boot_blk));}
-        if (func == "c"){ boot_avg.push_back(specific_heat  (boot_blk));}
-        if (func == "x"){ boot_avg.push_back(susceptibility (boot_blk));}
+        if (func == "u"){ boot_avg.push_back(internal_energy(Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "m"){ boot_avg.push_back(magnetization  (Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "c"){ boot_avg.push_back(specific_heat  (Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "x"){ boot_avg.push_back(susceptibility (Map<ArrayXd>(boot.data(), boot.size())));}
     }
     return Eigen::Map<ArrayXd>(boot_avg.data(),boot_avg.size());
+
 }
 
 ArrayXd class_thermo::bootstrap2(const ArrayXd &in, string func, int block_length ){
     vector<double> boot_avg;
-    ArrayXd boot_blk(block_length);
-    int num_blocks = (int)(in.size()) / block_length;
-
-    for (int nb = 0; nb < num_blocks; nb++){
-        int start_point = rn::uniform_integer(0, (int)in.size());
-        for (int i = 0; i < block_length; i++){
-            boot_blk(i) = in(math::mod(i + start_point, (int)in.size()));
+    for (int bt = 0; bt < PT_constants::bootstraps; bt++){
+        vector<double> boot;
+        while (boot.size() < in.size()){
+            int start = rn::uniform_integer(0, (int)in.size());
+            for (int i = 0; i < block_length; i++){
+                boot.push_back(in(math::mod(i + start, (int) in.size())));
+            }
         }
-        if (func == "u"){ boot_avg.push_back(internal_energy(boot_blk));}
-        if (func == "m"){ boot_avg.push_back(magnetization  (boot_blk));}
-        if (func == "c"){ boot_avg.push_back(specific_heat  (boot_blk));}
-        if (func == "x"){ boot_avg.push_back(susceptibility (boot_blk));}
+        if (func == "u"){ boot_avg.push_back(internal_energy(Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "m"){ boot_avg.push_back(magnetization  (Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "c"){ boot_avg.push_back(specific_heat  (Map<ArrayXd>(boot.data(), boot.size())));}
+        if (func == "x"){ boot_avg.push_back(susceptibility (Map<ArrayXd>(boot.data(), boot.size())));}
     }
     return Eigen::Map<ArrayXd>(boot_avg.data(),boot_avg.size());
 }
 
 double class_thermo::autocorrelation(const ArrayXd &A){
-    return pow(flyvbjerg(A),2) / (variance(A)/(A.size()-1));
+    return 0.5*pow(flyvbjerg(A),2) / (variance(A)/(A.size()-1));
 }
 
 double class_thermo::internal_energy(const ArrayXd &E){
@@ -206,13 +217,13 @@ ArrayXXd class_thermo::read_file(string filename) {
 //
 //void class_thermo::autocorrelation_E(){
 //    if(E.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-//    tau_E = pow(flyvbjerg(E),2) / (variance(E)/(E.size()-1));
+//    tau_E = 0.5*pow(flyvbjerg(E),2) / (variance(E)/(E.size()-1));
 //
 //}
 //
 //void class_thermo::autocorrelation_M(){
 //    if(M.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-//    tau_M = pow(flyvbjerg(M),2) / (variance(M)/(M.size()-1));
+//    tau_M = 0.5*pow(flyvbjerg(M),2) / (variance(M)/(M.size()-1));
 //
 //}
 //
