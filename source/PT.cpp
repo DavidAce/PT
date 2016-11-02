@@ -56,16 +56,24 @@ void print_status(class_worker &worker,bool override) {
 
                 if(print_extra) {
                     cout << "W_ID: " << left << setw(3) << worker.world_ID;
-                    cout << " T: "   << left << setw(6)  << setprecision(3) << worker.T;
-                    cout << " u: "   << left << setw(6) << setprecision(4) << worker.thermo.u << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u << ")"
-                                                                                              << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau << ")"
-                                                                                              << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_flyv << ")";
-                    cout << " m: "   << left << setw(6) << setprecision(4) << worker.thermo.m << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m     << ")"
-                                                                                              << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m_tau << ")";
-                    cout << " c: "   << left << setw(6) << setprecision(4) << worker.thermo.c << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_c << ")"
-                                                                                              << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_c_tau << ")";
-                    cout << " x: "   << left << setw(6) << setprecision(4) << worker.thermo.x << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x << ")"
-                                                                                              << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x_tau << ")";
+                    cout << " T: " << left << setw(6)  << setprecision(3) << worker.T;
+                    cout << " u: " << left << setw(6) << setprecision(4)  << worker.thermo.u
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau2 << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_flyv << ")";
+                    cout << " m: " << left << setw(6) << setprecision(4)  << worker.thermo.m
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m     << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m_tau << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_m_tau2 << ")";
+                    cout << " c: " << left << setw(6) << setprecision(4)  << worker.thermo.c
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_c << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_c_tau << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_c_tau2 << ")";
+                    cout << " x: " << left << setw(6) << setprecision(4)  << worker.thermo.x
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x_tau << ")"
+                            << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x_tau2 << ")";
                     cout << " tau: " << left << setw(8) << setprecision(4) << worker.thermo.tau_E << " " << left << setw(9) << worker.thermo.tau_M;
                 }
                 if(debug_status){

@@ -22,18 +22,26 @@ namespace rn{
         return Eigen::Map<ArrayXd>(boot.data(),boot.size());
     }
 
-    ArrayXd random_with_replacement(const ArrayXd & in, const int block_length, bool dummy){
-        if (block_length >= in.size()){cout << "block_length too large!" << endl; exit(1);}
-        vector<double> boot;
-        int num_blocks = in.size() / block_length;
-        for (int nb = 0; nb < num_blocks; nb++){
-            int block = uniform_integer(0, num_blocks);
-            for (int i = 0; i < block_length; i++){
-                boot.push_back(i + block*block_length);
-            }
-        }
-        return Eigen::Map<ArrayXd>(boot.data(),boot.size());
-    }
+//    ArrayXd random_with_replacement(const ArrayXd & in, const int block_length, bool dummy){
+//        if (block_length >= in.size()){cout << "block_length too large!" << endl; exit(1);}
+//        vector<double> boot;
+//        int num_blocks = (int)(in.size()) / block_length;
+////
+////        while (boot.size() < in.size()){
+////            int starting_point = uniform_integer(0,(int)in.size());
+////            for (int i = 0; i < block_length; i++){
+////                boot.push_back(in(math::mod(i + starting_point, (int) in.size())));
+////            }
+////        }
+//
+//        for (int nb = 0; nb < num_blocks; nb++){
+//            int block = uniform_integer(0, num_blocks);
+//            for (int i = 0; i < block_length; i++){
+//                boot.push_back(in(i + block*block_length));
+//            }
+//        }
+//        return Eigen::Map<ArrayXd>(boot.data(),boot.size());
+//    }
 
 
 

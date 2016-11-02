@@ -10,5 +10,5 @@ J= 1 [Number of unit cells in the Z directions are 2*Zcell  centered around orig
 L= 16 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 d= 2 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 MCS_warmup= 10000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-MCS_sample= 60000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
+MCS_sample= 200000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 

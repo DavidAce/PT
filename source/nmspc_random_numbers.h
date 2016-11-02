@@ -7,7 +7,7 @@
 #include <random>
 #include <iostream>
 #include <Eigen/Core>
-
+#include "nmspc_math_algorithms.h"
 #include "nmspc_PT_constants.h"
 using namespace std;
 using namespace Eigen;
@@ -39,7 +39,6 @@ namespace rn{
 
     extern ArrayXd random_with_replacement(const ArrayXd & indata);
     extern ArrayXd random_with_replacement(const ArrayXd & indata, const int num_choose);
-    extern ArrayXd random_with_replacement(const ArrayXd & indata, const int block_length, bool dummy);
 
     extern double gaussian_truncated(const double lowerLimit, const double upperLimit, const double mean, const double std) ;
 }
