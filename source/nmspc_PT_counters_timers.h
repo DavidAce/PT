@@ -21,6 +21,7 @@ namespace counter {
 namespace timer {
     extern int samp;
     extern int save;
+    extern int comp;
     extern int cout;
     extern int swap;
 

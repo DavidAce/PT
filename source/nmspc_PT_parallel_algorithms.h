@@ -18,6 +18,7 @@
 namespace parallel {
     extern void swap            (class_worker &) ;
     extern void save(class_worker &, output &, bool force) ;
+    extern void comp(class_worker &, bool force) ;
 
     template <typename T>
     void debug_print        (class_worker &worker, T input){

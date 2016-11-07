@@ -21,67 +21,68 @@ void class_thermo::compute(){
     ArrayXd x_b(PT_constants::bootstraps);
 
     tau_E = autocorrelation(E);
-    tau_M = autocorrelation(M);
+//    tau_M = autocorrelation(M);
     tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
-    tau_M = isnan(tau_M) || tau_M < 1 ? 1 : tau_M;
-    int block_length    = (int) ceil(2*tau_E);
-    int n_independent   = (int)(E.size()) / block_length;
+//    tau_M = isnan(tau_M) || tau_M < 1 ? 1 : tau_M;
 
-
-    ArrayXd E_bootstrap (E.size());
-    ArrayXd M_bootstrap (M.size());
-    for (int i = 0; i < PT_constants::bootstraps ; i++ ){
-        E_bootstrap = rn::random_with_replacement(E, n_independent);
-        M_bootstrap = rn::random_with_replacement(M, n_independent);
-        u_b(i) = internal_energy(E_bootstrap);
-        m_b(i) = magnetization  (M_bootstrap);
-        c_b(i) = specific_heat  (E_bootstrap);
-        x_b(i) = susceptibility (M_bootstrap);
-    }
+    int block_length    = (int) ceil(20*tau_E);
+//    int n_independent   = (int)(E.size()) / block_length;
+    u_b = bootstrap_overlap_block(E, "u", block_length);
+    m_b = bootstrap_overlap_block(M, "m", block_length);
+    c_b = bootstrap_overlap_block(E, "c", block_length);
+    x_b = bootstrap_overlap_block(M, "x", block_length);
 
     u = u_b.mean();
     m = m_b.mean();
     c = c_b.mean();
     x = x_b.mean();
-
     sigma_u_flyv = flyvbjerg(E)  /  PT_constants::N;
-
     sigma_u = sqrt(variance(u_b));
     sigma_m = sqrt(variance(m_b));
     sigma_c = sqrt(variance(c_b));
     sigma_x = sqrt(variance(x_b));
 
+//
+//    int block_length    = (int) ceil(2*tau_E);
+//    int n_independent   = (int)(E.size()) / block_length;
+//    ArrayXd E_bootstrap (E.size());
+//    ArrayXd M_bootstrap (M.size());
+//    for (int i = 0; i < PT_constants::bootstraps ; i++ ){
+//        E_bootstrap = rn::random_with_replacement(E, n_independent);
+//        M_bootstrap = rn::random_with_replacement(M, n_independent);
+//        u_b(i) = internal_energy(E_bootstrap);
+//        m_b(i) = magnetization  (M_bootstrap);
+//        c_b(i) = specific_heat  (E_bootstrap);
+//        x_b(i) = susceptibility (M_bootstrap);
+//    }
+//
+//
+//
+//    sigma_u = sqrt(variance(u_b));
+//    sigma_m = sqrt(variance(m_b));
+//    sigma_c = sqrt(variance(c_b));
+//    sigma_x = sqrt(variance(x_b));
+//
+//
+//
+//    block_length    = (int) ceil(20*tau_E);
+//    n_independent   = (int)(E.size()) / block_length;
+//
+//    u_b = bootstrap_non_overlap_block(E, "u", block_length);
+//    m_b = bootstrap_non_overlap_block(M, "m", block_length);
+//    c_b = bootstrap_non_overlap_block(E, "c", block_length);
+//    x_b = bootstrap_non_overlap_block(M, "x", block_length);
+//
+//    sigma_u_tau   = sqrt(variance(u_b));
+//    sigma_m_tau   = sqrt(variance(m_b));
+//    sigma_c_tau   = sqrt(variance(c_b));
+//    sigma_x_tau   = sqrt(variance(x_b));
 
-
-    block_length    = (int) ceil(20*tau_E);
-    n_independent   = (int)(E.size()) / block_length;
-
-    u_b = bootstrap(E, "u", block_length);
-    m_b = bootstrap(M, "m", block_length);
-    c_b = bootstrap(E, "c", block_length);
-    x_b = bootstrap(M, "x", block_length);
-
-    sigma_u_tau   = sqrt(variance(u_b));
-    sigma_m_tau   = sqrt(variance(m_b));
-    sigma_c_tau   = sqrt(variance(c_b));
-    sigma_x_tau   = sqrt(variance(x_b));
-
-    block_length    = (int) ceil(20*tau_E);
-    n_independent   = (int)(E.size()) / block_length;
-    u_b = bootstrap2(E, "u", block_length);
-    m_b = bootstrap2(M, "m", block_length);
-    c_b = bootstrap2(E, "c", block_length);
-    x_b = bootstrap2(M, "x", block_length);
-
-    sigma_u_tau2   = sqrt(variance(u_b));
-    sigma_m_tau2   = sqrt(variance(m_b));
-    sigma_c_tau2   = sqrt(variance(c_b));
-    sigma_x_tau2   = sqrt(variance(x_b));
 
 
 }
 
-ArrayXd class_thermo::bootstrap(const ArrayXd &in, string func, int block_length ){
+ArrayXd class_thermo::bootstrap_non_overlap_block(const ArrayXd &in, string func, int block_length){
     int num_blocks = (int)(in.size()) / block_length;
     vector<double> boot_avg;
 
@@ -102,7 +103,7 @@ ArrayXd class_thermo::bootstrap(const ArrayXd &in, string func, int block_length
 
 }
 
-ArrayXd class_thermo::bootstrap2(const ArrayXd &in, string func, int block_length ){
+ArrayXd class_thermo::bootstrap_overlap_block(const ArrayXd &in, string func, int block_length){
     vector<double> boot_avg;
     for (int bt = 0; bt < PT_constants::bootstraps; bt++){
         vector<double> boot;
@@ -148,11 +149,13 @@ double class_thermo::flyvbjerg(const ArrayXd & A){
     for (int i = 0; i < maxBlockingSteps; i++){
         double var    = variance(B);
         sigma(i)      = sqrt(var / (B.size() - 1) ) ;
-        ssigma(i)     = sigma(i) / sqrt(2*(B.size()-1));
+//        ssigma(i)     = sigma(i) / sqrt(2*(B.size()-1));
+        ssigma(i)     = sqrt(sigma(i)*sigma(i) * sqrt(2/(B.size()-1)));
 //        if (T_ID == 5){cout << B.size() << " " ;}
         block_transform(B);
     }
     int idx;
+
     double dummy = (sigma - ssigma).maxCoeff(&idx);
 //    if (T_ID == 5){cout << "Result: " << sigma(idx) << endl;}
     return sigma(idx);
@@ -167,6 +170,17 @@ void class_thermo::block_transform(ArrayXd & B){
 
 double class_thermo::variance(const ArrayXd &A){
     return A.cwiseAbs2().mean() - pow(A.mean(),2);
+}
+
+void class_thermo::reset(){
+    u = 0; sigma_u = 0;// sigma_u_tau = 0; sigma_u_tau2 = 0;
+    m = 0; sigma_m = 0;// sigma_m_tau = 0; sigma_m_tau2 = 0;
+    c = 0; sigma_c = 0;// sigma_c_tau = 0; sigma_c_tau2 = 0;
+    x = 0; sigma_x = 0;// sigma_x_tau = 0; sigma_x_tau2 = 0;
+
+    sigma_u_flyv = 0;
+
+    tau_E = 0; //tau_M = 0;
 }
 
 ArrayXXd class_thermo::read_file(string filename) {

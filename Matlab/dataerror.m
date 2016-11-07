@@ -1,10 +1,10 @@
 function [ error, block_error , block_error_error, chosen, tau, block_size] = dataerror( A )
 len = length(A);
-maxBlockingSteps = floor(log(length(A))/log(2) - 1);
+maxBlockingSteps = floor(log(length(A))/log(2)-1);
 for i = 1:maxBlockingSteps;
-    block_error(i)       = sqrt(var(A,1)/(len-1));
-    block_error_error(i) = block_error(i) / sqrt(2*(len-1));
-%     block_error_error (i) = sqrt(2*var(A,1)^2/(len-1)^3);
+    block_error(i)       = sqrt(var(A)/(len-1));
+%     block_error_error(i) = block_error(i) / sqrt(2*(len-1));
+    block_error_error(i) = sqrt(block_error(i)^2 * sqrt(2/(len-1)));
     [A,len] = transform(A);
     block_size(i) = 2^i; 
 end
