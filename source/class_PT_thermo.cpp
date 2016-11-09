@@ -11,7 +11,22 @@ void class_thermo::load_data(int temperature_ID, double temperature){
     M       = read_file("output/" + PT_constants::job_name + "/timeseries/M" + to_string(T_ID) + ".dat");
 }
 
-void class_thermo::compute(){
+void class_thermo::compute_stats(){
+    E_mean      = E.mean();
+    E_sq_mean   = E.cwiseAbs2().mean();
+
+    M_mean      = M.cwiseAbs().mean();
+    M_sq_mean   = M.cwiseAbs2().mean();
+
+    E_var       = E_sq_mean - E_mean*E_mean;
+    E_std       = sqrt(E_var);
+
+    M_var       = M_sq_mean - M_mean*M_mean;
+    M_std       = sqrt(M_var);
+
+}
+
+void class_thermo::compute_thermo(){
     if(E.size() <= 1){cout << "Energy hasn't been loaded yet" << endl; return;}
     if(M.size() <= 1){cout << "Magnetization hasn't been loaded yet" << endl; return;}
     if(M.size() != E.size()){cout << "Data size mismatch" << endl; return;}
@@ -19,6 +34,7 @@ void class_thermo::compute(){
     ArrayXd m_b(PT_constants::bootstraps);
     ArrayXd c_b(PT_constants::bootstraps);
     ArrayXd x_b(PT_constants::bootstraps);
+//    ArrayXd s_b(PT_constants::bootstraps);
 
     tau_E = autocorrelation(E);
 //    tau_M = autocorrelation(M);
@@ -31,16 +47,19 @@ void class_thermo::compute(){
     m_b = bootstrap_overlap_block(M, "m", block_length);
     c_b = bootstrap_overlap_block(E, "c", block_length);
     x_b = bootstrap_overlap_block(M, "x", block_length);
+//    s_b = bootstrap_overlap_block(M, "s", block_length);
 
     u = u_b.mean();
     m = m_b.mean();
     c = c_b.mean();
     x = x_b.mean();
+//    s = s_b.mean();
     sigma_u_flyv = flyvbjerg(E)  /  PT_constants::N;
     sigma_u = sqrt(variance(u_b));
     sigma_m = sqrt(variance(m_b));
     sigma_c = sqrt(variance(c_b));
     sigma_x = sqrt(variance(x_b));
+//    sigma_s = sqrt(variance(s_b));
 
 //
 //    int block_length    = (int) ceil(2*tau_E);
@@ -98,6 +117,7 @@ ArrayXd class_thermo::bootstrap_non_overlap_block(const ArrayXd &in, string func
         if (func == "m"){ boot_avg.push_back(magnetization  (Map<ArrayXd>(boot.data(), boot.size())));}
         if (func == "c"){ boot_avg.push_back(specific_heat  (Map<ArrayXd>(boot.data(), boot.size())));}
         if (func == "x"){ boot_avg.push_back(susceptibility (Map<ArrayXd>(boot.data(), boot.size())));}
+//        if (func == "s"){ boot_avg.push_back(entropy        (Map<ArrayXd>(boot.data(), boot.size())));}
     }
     return Eigen::Map<ArrayXd>(boot_avg.data(),boot_avg.size());
 
@@ -117,6 +137,7 @@ ArrayXd class_thermo::bootstrap_overlap_block(const ArrayXd &in, string func, in
         if (func == "m"){ boot_avg.push_back(magnetization  (Map<ArrayXd>(boot.data(), boot.size())));}
         if (func == "c"){ boot_avg.push_back(specific_heat  (Map<ArrayXd>(boot.data(), boot.size())));}
         if (func == "x"){ boot_avg.push_back(susceptibility (Map<ArrayXd>(boot.data(), boot.size())));}
+//        if (func == "s"){ boot_avg.push_back(entropy        (Map<ArrayXd>(boot.data(), boot.size())));}
     }
     return Eigen::Map<ArrayXd>(boot_avg.data(),boot_avg.size());
 }
@@ -140,6 +161,11 @@ double class_thermo::specific_heat  (const ArrayXd &E){
 double class_thermo::susceptibility  (const ArrayXd &M){
     return variance(M.cwiseAbs())/T/PT_constants::N;
 }
+
+double class_thermo::entropy  (const ArrayXd &E){
+    return variance(M.cwiseAbs())/T/PT_constants::N;
+}
+
 
 double class_thermo::flyvbjerg(const ArrayXd & A){
     ArrayXd B = A;
@@ -179,7 +205,6 @@ void class_thermo::reset(){
     x = 0; sigma_x = 0;// sigma_x_tau = 0; sigma_x_tau2 = 0;
 
     sigma_u_flyv = 0;
-
     tau_E = 0; //tau_M = 0;
 }
 

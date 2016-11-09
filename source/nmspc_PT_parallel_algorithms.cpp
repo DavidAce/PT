@@ -170,9 +170,46 @@ namespace parallel {
     void comp(class_worker &worker, bool force){
         timer::comp = 0;
         worker.thermo.load_data(worker.T_ID, worker.T);
-        worker.thermo.compute();
+        worker.thermo.compute_thermo();
     }
 
+    void move(class_worker &worker) {
+        timer::move = 0;
+        if (!worker.sampling) {
+            ArrayXd c_current(worker.world_size),
+                    s_current(worker.world_size);
+
+            MPI_Allgather(&worker.thermo.c, 1, MPI_DOUBLE, c_current.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+            s_current(0) = 0;
+            for (int i = 1; i < worker.world_size; i++) {
+                s_current(i) = s_current(i - 1) + (worker.T_ladder(i) - worker.T_ladder(i - 1)) / 6
+                                                  * (c_current(i - 1) / worker.T_ladder(i - 1)
+                                                     + 4 * (c_current(i - 1) + c_current(i)) /
+                                                       (worker.T_ladder(i - 1) + worker.T_ladder(i))
+                                                     + c_current(i) / worker.T_ladder(i));
+            }
+
+            //Interpolation
+            int num_interp = 50;
+            vector<double> t_interp, s_interp;
+            for (int i = 1; i < worker.world_size; i++) {
+                for (int j = 0; j < num_interp; j++) {
+                    t_interp.push_back((double) j / num_interp * (worker.T_ladder(i) - worker.T_ladder(i - 1)) + worker.T_ladder(i - 1));
+                    s_interp.push_back((double) j / num_interp * (s_current(i) - s_current(i - 1)) + s_current(i - 1));
+                }
+            }
+            //Turn back to an Eigen Array
+            ArrayXd s = Map<ArrayXd>(s_interp.data(), s_interp.size());
+            ArrayXd t = Map<ArrayXd>(t_interp.data(), t_interp.size());
+            //Find intersections
+            ArrayXd s_linear = ArrayXd::LinSpaced(worker.world_size, s.minCoeff(), s.maxCoeff());
+            for (int i = 1; i < worker.world_size - 1; i++) {
+                int idx = math::binary_search(s, s_linear(i));
+                worker.T_ladder(i) = t(idx);
+            }
+            worker.T = worker.T_ladder(worker.T_ID);
+        }
+    }
 }
 
 

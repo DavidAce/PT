@@ -24,6 +24,7 @@ namespace timer {
     extern int comp;
     extern int cout;
     extern int swap;
+    extern int move;
 
 }
 

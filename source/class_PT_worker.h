@@ -51,6 +51,7 @@ public:
     double T;
     ArrayXd T_ladder;
     int world_ID_up, world_ID_dn;
+    bool sampling;
 //    double E_avg, E_avg_sq;
 //    double M_avg, M_avg_sq;
 

@@ -2,10 +2,10 @@ close all
 clear all;
 iterations = 25;
 bootstraps = 50;
-for i = 4:4
+for i = 3:3
     E{i+1}    = load(['../output/default/timeseries/E' num2str(i) '.dat']);
     M{i+1}    = load(['../output/default/timeseries/M' num2str(i) '.dat']);
-%     E{i+1}    = E{i+1}(1:100000);
+    E{i+1}    = E{i+1}(1:50000);
     figure(1)
     plot(autocorr(E{i+1}),'DisplayName', [num2str(i+1)]),hold all
     figure(2)
@@ -22,7 +22,7 @@ for i = 4:4
         [~, ~, boot1_std(j)] = bootstrap1(E{i+1}, block_length, bootstraps);
         time(1) = time(1) + toc(tstart);
                 
-        block_length = 20*ceil(tau);
+        block_length = 10*ceil(tau);
         tstart = tic;
         [~, ~, boot12_std(j)] = bootstrap1(E{i+1}, block_length, bootstraps);
         time(2) = time(2) + toc(tstart);
@@ -32,7 +32,7 @@ for i = 4:4
         [~, ~, boot2_std(j)] = bootstrap2(E{i+1}, block_length, bootstraps);
         time(3) = time(3) + toc(tstart);
         
-        block_length = 20*ceil(tau);
+        block_length = 10*ceil(tau);
         tstart = tic;
         [~, ~, boot22_std(j)] = bootstrap2(E{i+1}, block_length, bootstraps);
         time(4) = time(4) + toc(tstart);
@@ -42,7 +42,7 @@ for i = 4:4
         [~, ~, boot_my1_std(j)] = my_bootstrap(E{i+1}, block_length, bootstraps);
         time(5) = time(5) + toc(tstart);
         
-        block_length = 20*ceil(tau);
+        block_length = 10*ceil(tau);
         tstart = tic;
         [~, ~, boot_my12_std(j)] = my_bootstrap(E{i+1}, block_length, bootstraps);
         time(6) = time(6) + toc(tstart);
@@ -52,7 +52,7 @@ for i = 4:4
         [~,  ~, boot_my2_std(j)] = my_bootstrap2(E{i+1}, block_length, bootstraps);
         time(7) = time(7) + toc(tstart);
                 
-        block_length = 20*ceil(tau);
+        block_length = 10*ceil(tau);
         tstart = tic;
         [~,  ~, boot_my22_std(j)] = my_bootstrap2(E{i+1}, block_length, bootstraps);
         time(8) = time(8) + toc(tstart);

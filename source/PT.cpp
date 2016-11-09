@@ -20,6 +20,7 @@ void paralleltempering(class_worker &worker) {
         if (timer::save >= PT_constants::rate_save) { parallel::save(worker, out, false); }
 //        if (timer::comp >= PT_constants::rate_comp) { parallel::comp(worker, out, false); }
         if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
+        if (timer::move >= PT_constants::rate_move) { parallel::move(worker); }
         if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
         counter::MCS++;
         timer::samp++;
@@ -27,6 +28,7 @@ void paralleltempering(class_worker &worker) {
         timer::comp++;
         timer::swap++;
         timer::cout++;
+        timer::move++;
     }
     parallel::save(worker, out, true);
     print_status(worker, true);
@@ -34,6 +36,7 @@ void paralleltempering(class_worker &worker) {
 
 void sample(class_worker &worker){
     if (counter::MCS >= PT_constants::MCS_warmup) {
+        worker.sampling = true;
         worker.T_history(counter::samples) = worker.T_ID;
         worker.E_history(counter::samples) = worker.E;
         worker.M_history(counter::samples) = worker.M;

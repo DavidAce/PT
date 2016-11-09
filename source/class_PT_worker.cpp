@@ -26,6 +26,7 @@ int timer::save;
 int timer::comp;
 int timer::cout;
 int timer::swap;
+int timer::move;
 
 //Constructors
 class_worker::class_worker(int & id, int & size):
@@ -44,6 +45,7 @@ class_worker::class_worker(int & id, int & size):
     model.randomize_lattice();
     E        = model.get_E();
     M        = model.get_M();
+    sampling = false;
 //    E_avg    = E;
 //    M_avg    = M;
 //    E_avg_sq = E*E;
@@ -66,6 +68,7 @@ void class_worker::start_counters() {
     timer::cout                 = 0;
     timer::comp                 = 0;
     timer::swap 				= 0;
+    timer::move 				= 0;
 }
 
 

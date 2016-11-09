@@ -5,11 +5,16 @@
 #ifndef PT_CLASS_PT_LADDER_H
 #define PT_CLASS_PT_LADDER_H
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
 
+using namespace Eigen;
 class class_PT_ladder {
 private:
 public:
+    class_PT_ladder (){};
 
+    ArrayXd entropy_adjustment();
 
 };
 
