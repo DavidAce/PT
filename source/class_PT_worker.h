@@ -73,8 +73,11 @@ public:
     vector<double> M_history;
 
     //Katzgrabber
-    int nup,ndn; //Histograms
-    int direction; // 1 for up, -1 for down, 0 if not applicable
+//    int nup,ndn;    //Histograms
+    vector <int> n_history;
+    vector <int> t_history;
+
+    int direction;  // 1 for up, -1 for down, 0 if not applicable
 
 
     //PT acceptance criterion

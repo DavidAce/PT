@@ -9,10 +9,11 @@
 #include "class_tic_toc.h"
 #include <Eigen/Dense>
 #include <Eigen/Core>
-
+#include <thread>
 
 #include "class_PT_worker.h"
 #include "class_PT_output.h"
+
 #include "nmspc_mpi_extensions.h"
 //class class_worker;
 namespace parallel {

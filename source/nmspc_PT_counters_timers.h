@@ -10,6 +10,7 @@ namespace counter {
     //Counters
     extern int MCS;
     extern int accepts;
+    extern int trials;
     extern int samples;
     extern int swap_trials;
     extern int swap_accepts;

@@ -18,10 +18,11 @@ void paralleltempering(class_worker &worker) {
         worker.sweep();
         if (timer::samp >= PT_constants::rate_samp) { sample(worker); }
         if (timer::save >= PT_constants::rate_save) { parallel::save(worker, out, false); }
-        if (timer::move >= PT_constants::rate_move) { parallel::move(worker); }
 //        if (timer::comp >= PT_constants::rate_comp) { parallel::comp(worker, out, false); }
         if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
         if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
+        if (timer::move >= PT_constants::rate_move) { parallel::katz(worker); }
+
         counter::MCS++;
         timer::samp++;
         timer::save++;
@@ -36,19 +37,16 @@ void paralleltempering(class_worker &worker) {
 
 void sample(class_worker &worker){
     timer::samp = 0;
-    worker.T_history.push_back(worker.T_ID);
-    worker.E_history.push_back(worker.E);
-    worker.M_history.push_back(worker.M);
-
-
     worker.sampling = counter::MCS > PT_constants::MCS_warmup;
-    if (!worker.sampling){
+
+    if (worker.sampling) {
+        worker.T_history.push_back(worker.T_ID);
+        worker.E_history.push_back(worker.E);
+        worker.M_history.push_back(worker.M);
+    }else{
         timer::save = 0;
         timer::comp = 0;
     }
-
-
-
 }
 
 void print_status(class_worker &worker,bool override) {
@@ -66,6 +64,8 @@ void print_status(class_worker &worker,bool override) {
                 if(print_extra) {
                     cout << "W_ID: " << left << setw(3) << worker.world_ID;
                     cout << " T: " << left << setw(6)  << setprecision(3) << worker.T;
+                    cout << " A: " << left << setw(6)  << setprecision(3) << counter::accepts/(double)counter::trials;
+                    cout << " SA: " << left << setw(6)  << setprecision(3) << counter::swap_accepts/(double)counter::swap_trials;
                     cout << " u: " << left << setw(6) << setprecision(4)  << worker.thermo.u
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_flyv << ")"
                             //<< "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_u_tau << ")"
@@ -83,7 +83,7 @@ void print_status(class_worker &worker,bool override) {
                             << "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x << ")";
                             //<< "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x_tau << ")"
                             //<< "(" << left << setw(6) << setprecision(7)  << worker.thermo.sigma_x_tau2 << ")";
-//                    cout << " tau: " << left << setw(8) << setprecision(4) << worker.thermo.tau_E << " " << left << setw(9) << worker.thermo.tau_M;
+                    cout << " tau: " << left << setw(8) << setprecision(4) << worker.thermo.tau_E ;
                 }
                 if(debug_status){
                     cout << " E: "        << left << setw(9) << setprecision(2)   << worker.E

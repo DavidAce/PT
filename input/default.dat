@@ -9,6 +9,6 @@ T_max= 6 [Number of unit cells in the X and Y directions are 2*Ycell centered ar
 J= 1 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 L= 24 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 d= 2 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-MCS_warmup= 40000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
+MCS_warmup= 10000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 MCS_sample= 100000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
 

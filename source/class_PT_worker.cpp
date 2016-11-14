@@ -17,6 +17,7 @@ using namespace std;
 using namespace Eigen;
 int counter::MCS;
 int counter::accepts;
+int counter::trials;
 int counter::samples;
 int counter::swap_trials;
 int counter::swap_accepts;
@@ -46,10 +47,6 @@ class_worker::class_worker(int & id, int & size):
     E        = model.get_E();
     M        = model.get_M();
     sampling = false;
-//    E_avg    = E;
-//    M_avg    = M;
-//    E_avg_sq = E*E;
-//    M_avg_sq = M*M;
 
     direction = 0;
     start_counters();
@@ -62,6 +59,7 @@ class_worker::class_worker(int & id, int & size):
 void class_worker::start_counters() {
     counter::MCS                = 0;
     counter::accepts            = 0;
+    counter::trials             = 0;
     counter::samples            = 0;
     counter::swap_trials        = 0;
     counter::swap_accepts       = 0;
@@ -80,19 +78,15 @@ void class_worker::set_initial_temperatures(){
     world_ID_up = math::mod(world_ID + 1, world_size);
     world_ID_dn = math::mod(world_ID - 1, world_size);
     thermo.T = T;
-    //Katzgraber
-    if (T_ID == world_size-1){
-        direction = -1;
-    }else if(T_ID == 0){
-        direction = 1;
-    }
 }
 
 void class_worker::sweep(){
     t_sweep.tic();
     for (int i = 0; i < PT_constants::N ; i++){
         model.make_new_state(E,M, E_trial, M_trial);
+        counter::trials++;
         if(rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T))){
+            counter::accepts++;
             E                           = E_trial;
             M                           = M_trial;
             model.flip();
