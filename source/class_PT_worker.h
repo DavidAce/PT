@@ -65,9 +65,17 @@ public:
     //PT Energy and Order parameter
     double E,M;                         //Current Energy and Order parameter
     double E_trial, M_trial;                 //Proposed
-    Array<int ,   PT_constants::rate_save, 1> T_history;
-    Array<double, PT_constants::rate_save ,1> E_history;
-    Array<double, PT_constants::rate_save ,1> M_history;
+//    Array<int ,   PT_constants::rate_save, 1> T_history;
+//    Array<double, PT_constants::rate_save ,1> E_history;
+//    Array<double, PT_constants::rate_save ,1> M_history;
+    vector<int >   T_history;
+    vector<double> E_history;
+    vector<double> M_history;
+
+    //Katzgrabber
+    int nup,ndn; //Histograms
+    int direction; // 1 for up, -1 for down, 0 if not applicable
+
 
     //PT acceptance criterion
     bool accept;

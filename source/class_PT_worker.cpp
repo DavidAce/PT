@@ -51,6 +51,7 @@ class_worker::class_worker(int & id, int & size):
 //    E_avg_sq = E*E;
 //    M_avg_sq = M*M;
 
+    direction = 0;
     start_counters();
     set_initial_temperatures();
     cout << "ID: " << world_ID << " Started OK"<<endl;
@@ -79,6 +80,12 @@ void class_worker::set_initial_temperatures(){
     world_ID_up = math::mod(world_ID + 1, world_size);
     world_ID_dn = math::mod(world_ID - 1, world_size);
     thermo.T = T;
+    //Katzgraber
+    if (T_ID == world_size-1){
+        direction = -1;
+    }else if(T_ID == 0){
+        direction = 1;
+    }
 }
 
 void class_worker::sweep(){

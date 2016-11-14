@@ -143,7 +143,7 @@ ArrayXd class_thermo::bootstrap_overlap_block(const ArrayXd &in, string func, in
 }
 
 double class_thermo::autocorrelation(const ArrayXd &A){
-    return 0.5*pow(flyvbjerg(A),2) / (variance(A)/(A.size()-1));
+    return 0.5*pow(flyvbjerg(A),2) / (variance(A)/((int)A.size()-1));
 }
 
 double class_thermo::internal_energy(const ArrayXd &E){

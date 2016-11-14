@@ -125,10 +125,19 @@ namespace parallel {
             if (myTurn == 1) {
                 worker.T_ID = math::mod(worker.T_ID + 1, worker.world_size);
                 worker.T = worker.T_ladder(worker.T_ID);
+                //Katzgraber update
+                if (worker.T_ID == 0 ){
+                    worker.direction = 1;
+                }
+
            }
             else {
                 worker.T_ID = math::mod(worker.T_ID - 1, worker.world_size);
                 worker.T = worker.T_ladder(worker.T_ID);
+                //Katzgraber update
+                if (worker.T_ID == worker.world_size-1){
+                    worker.direction = -1;
+                }
             }
         }
 
@@ -147,22 +156,32 @@ namespace parallel {
 
     }
 
-    void save(class_worker &worker, output &out, bool force){
-        if (counter::samples == PT_constants::rate_save || force){
+    void sort(class_worker &worker){
             //Reorder E
-            for (int i = 0; i < counter::samples; i++){
-                MPI_Sendrecv_replace(&worker.E_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            for (int i = 0; i < worker.E_history.size(); i++){
+                MPI_Sendrecv_replace(&worker.E_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
             MPI_Barrier(MPI_COMM_WORLD);
             //Reorder M
-            for (int i = 0; i < counter::samples; i++){
-                MPI_Sendrecv_replace(&worker.M_history(i), 1, MPI_DOUBLE, worker.T_history(i),i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            for (int i = 0; i < worker.M_history.size(); i++){
+                MPI_Sendrecv_replace(&worker.M_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
+            MPI_Barrier(MPI_COMM_WORLD);
+    }
+
+
+
+    void save(class_worker &worker, output &out, bool force){
+        timer::save = 0;
+        if (worker.sampling || force){
+            cout << "Sort, size = " << worker.E_history.size() << endl;
+            sort(worker);
             out.store_samples(worker.E_history, "E" +  std::to_string(worker.world_ID) + ".dat",counter::store);
             out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) + ".dat",counter::store);
+            worker.E_history.clear();
+            worker.M_history.clear();
+            worker.T_history.clear();
             counter::store++;
-            counter::samples = 0;
-            MPI_Barrier(MPI_COMM_WORLD);
 
         }
     }
@@ -176,19 +195,38 @@ namespace parallel {
     void move(class_worker &worker) {
         timer::move = 0;
         if (!worker.sampling) {
+            if(worker.E_history.size() < 2000){return;}
+            worker.E_history.erase(worker.E_history.begin(), worker.E_history.begin() + 1000);
+            worker.M_history.erase(worker.M_history.begin(), worker.M_history.begin() + 1000);
+            worker.T_history.erase(worker.T_history.begin(), worker.T_history.begin() + 1000);
+
+            sort(worker);
+            ArrayXd E = Map<ArrayXd>(worker.E_history.data(), worker.E_history.size());
+            cout << "E size: " << E.size() << endl;
+            double tau_E = worker.thermo.autocorrelation(E);
+            tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
+            int block_length    = min((int) ceil(20*tau_E), (int)E.size()/10);
+            double c = worker.thermo.bootstrap_overlap_block(E, "c", block_length).mean();
+            worker.E_history.clear();
+            worker.M_history.clear();
+            worker.T_history.clear();
+
             ArrayXd c_current(worker.world_size),
                     s_current(worker.world_size);
 
-            MPI_Allgather(&worker.thermo.c, 1, MPI_DOUBLE, c_current.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+
+            MPI_Allgather(&c, 1, MPI_DOUBLE, c_current.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
+            cout << "C: "<< c_current.transpose() << endl;
             s_current(0) = 0;
             for (int i = 1; i < worker.world_size; i++) {
-                s_current(i) = s_current(i - 1) + (worker.T_ladder(i) - worker.T_ladder(i - 1)) / 6
+                s_current(i) = s_current(i - 1) + (worker.T_ladder(i) - worker.T_ladder(i - 1)) / 6.0
                                                   * (c_current(i - 1) / worker.T_ladder(i - 1)
                                                      + 4 * (c_current(i - 1) + c_current(i)) /
                                                        (worker.T_ladder(i - 1) + worker.T_ladder(i))
                                                      + c_current(i) / worker.T_ladder(i));
             }
 
+            cout << "S: "<< s_current.transpose() << endl;
             //Interpolation
             int num_interp = 50;
             vector<double> t_interp, s_interp;
@@ -198,6 +236,7 @@ namespace parallel {
                     s_interp.push_back((double) j / num_interp * (s_current(i) - s_current(i - 1)) + s_current(i - 1));
                 }
             }
+
             //Turn back to an Eigen Array
             ArrayXd s = Map<ArrayXd>(s_interp.data(), s_interp.size());
             ArrayXd t = Map<ArrayXd>(t_interp.data(), t_interp.size());
@@ -207,9 +246,24 @@ namespace parallel {
                 int idx = math::binary_search(s, s_linear(i));
                 worker.T_ladder(i) = t(idx);
             }
+            cout << "T: " << worker.T_ladder.transpose() << endl;
             worker.T = worker.T_ladder(worker.T_ID);
+            worker.thermo.T = worker.T;
+
         }
     }
+
+    void katz(class_worker &worker) {
+        timer::move = 0;
+        if (!worker.sampling) {
+
+
+            nup = ArrayXi::Zero(world_size);
+            ndn = ArrayXi::Zero(world_size);
+
+        }
+    }
+
 }
 
 

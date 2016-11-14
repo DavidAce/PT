@@ -2,13 +2,14 @@
 // Created by david on 2016-08-05.
 //
 
-#ifndef WL_NMSPC_MATH_ALGORITHMS_H
-#define WL_NMSPC_MATH_ALGORITHMS_H
+#ifndef NMSPC_MATH_ALGORITHMS_H
+#define NMSPC_MATH_ALGORITHMS_H
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <vector>
 
 using namespace Eigen;
 namespace math{
@@ -350,4 +351,4 @@ namespace math{
     }
 }
 
-#endif //WL_NMSPC_MATH_ALGORITHMS_H
+#endif //PT_NMSPC_MATH_ALGORITHMS_H

@@ -46,6 +46,19 @@ public:
         }
     }
 
+    template<typename T>
+    void store_samples(vector<T> vec_data, std::string name, int store_counter){
+        ArrayXd data = Map<ArrayXd>(vec_data.data(), vec_data.size());
+        if (store_counter == 0){
+            folder ="output/"  + PT_constants::job_name + "/timeseries/";
+            create_folder_master(world_ID);
+            write_to_file(data, folder + name);
+        }else{
+            append_to_file(data, folder + name);
+        }
+    }
+
+
     template<typename Derived>
     void write_to_file(const MatrixBase<Derived> &data, string filename){
         ofstream file(filename,ios::out | ios::trunc);

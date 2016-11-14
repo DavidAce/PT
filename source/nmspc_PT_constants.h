@@ -30,10 +30,10 @@ namespace PT_constants {
     //Rates for checking, sampling, storing and printing (MCS units)
     static const int rate_samp = 1;
     static const int rate_save = 10000;
-    static const int rate_comp = 100000;     //How often to compute_thermo statistics
+    static const int rate_comp = 20000;     //How often to compute_thermo statistics
     static const int rate_swap = 50;       //How often to swap walkers in adjacent windows
     static const int rate_cout = 10000;    //How often to cout in terminal
-    static const int rate_move = 1000;    //How often to cout in terminal
+    static const int rate_move = 5000;    //How often to cout in terminal
 
     //Number of compute_thermo cycles for error calculation
     static const int bootstraps = 100;

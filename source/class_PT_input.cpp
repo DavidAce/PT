@@ -7,11 +7,11 @@
 bool input::folder_exists(const std::string path){
     struct stat info;
     if( info.st_mode & S_IFDIR ) {
-        printf("%Found directory: %s ", path);
+        printf("Found directory: %s ", path.c_str());
         return true;
     }
     else {
-        printf("Folder does not exist: %s\n", path);
+        printf("Folder does not exist: %s\n", path.c_str());
         return false;
     }
 }
@@ -35,7 +35,7 @@ void input::load_settings_from_file(std::string filename, int world_ID){
         if (world_ID == 0) {
             printf("Parameter file not found, exiting\n");
             MPI_Abort(MPI_COMM_WORLD, 1);
-            exit(EXIT_FAILURE);
+            exit(1);
         }
     }else {
         if (world_ID == 0) {

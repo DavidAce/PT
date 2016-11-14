@@ -47,7 +47,7 @@ else()
     message("Host: ${this_host} (GNU)")
     set(CMAKE_CXX_COMPILER mpicxx)
     set(CMAKE_CXX_FLAGS_DEBUG " ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -Wno-deprecated-declarations")
-    set(CMAKE_CXX_FLAGS_RELEASE " ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -g -O3 -funroll-loops -march=native -frename-registers -Wno-deprecated-declarations -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE " ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -g -O3 -march=native -Wno-deprecated-declarations -DNDEBUG")
 endif()
 message("Compiling with: ${CMAKE_CXX_COMPILER_ID}")
 
