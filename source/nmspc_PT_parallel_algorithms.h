@@ -18,11 +18,11 @@
 //class class_worker;
 namespace parallel {
     extern void swap(class_worker &) ;
-    extern void sort(class_worker &) ;
-    extern void save(class_worker &, output &, bool force) ;
-    extern void comp(class_worker &, bool force) ;
-    extern void move(class_worker &);
+    extern void sort(class_worker &, output &, bool force) ;
+    extern void calc(class_worker &, bool force) ;
     extern void katz(class_worker &);
+    extern void save(class_worker &, output &) ;
+
     template <typename T>
     void debug_print        (class_worker &worker, T input){
         MPI_Barrier(MPI_COMM_WORLD);

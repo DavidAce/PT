@@ -22,9 +22,9 @@ int counter::samples;
 int counter::swap_trials;
 int counter::swap_accepts;
 int counter::store;
-int timer::samp;
-int timer::save;
-int timer::comp;
+int timer::prob;
+int timer::sort;
+int timer::calc;
 int timer::cout;
 int timer::swap;
 int timer::move;
@@ -65,7 +65,7 @@ void class_worker::start_counters() {
     counter::swap_accepts       = 0;
     counter::store              = 0;
     timer::cout                 = 0;
-    timer::comp                 = 0;
+    timer::calc                 = 0;
     timer::swap 				= 0;
     timer::move 				= 0;
 }

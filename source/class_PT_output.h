@@ -34,6 +34,24 @@ public:
     void create_folder_worker();
     int mkdir_p(const char *path);
 
+    //Generic data
+    template<typename Derived>
+    void store(const ArrayBase<Derived> &data, std::string name){
+        folder ="output/"  + PT_constants::job_name + "/";
+        write_to_file(data, folder + name);
+
+    }
+
+    //Generic data
+    template<typename T>
+    void store(const T &data, std::string name){
+        folder ="output/"  + PT_constants::job_name + "/";
+        write_to_file(data, folder + name);
+
+    }
+
+
+
     //File streams
     template<typename Derived>
     void store_samples(const ArrayBase<Derived> &data, std::string name, int store_counter){
@@ -58,6 +76,15 @@ public:
         }
     }
 
+
+    template<typename T>
+    void write_to_file(const T &data, string filename){
+        ofstream file(filename,ios::out | ios::trunc);
+        file << fixed << showpoint << setprecision(precision);
+        file << data << endl;
+        file.flush();
+        file.close();
+    }
 
     template<typename Derived>
     void write_to_file(const MatrixBase<Derived> &data, string filename){

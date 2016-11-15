@@ -166,101 +166,36 @@ namespace parallel {
 
     }
 
-    void sort(class_worker &worker){
-        //Reorder E
-        for (int i = 0; i < worker.E_history.size(); i++){
-            MPI_Sendrecv_replace(&worker.E_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-        //Reorder M
-        for (int i = 0; i < worker.M_history.size(); i++){
-            MPI_Sendrecv_replace(&worker.M_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        }
-        MPI_Barrier(MPI_COMM_WORLD);
-
-    }
 
 
 
-    void save(class_worker &worker, output &out, bool force){
-        timer::save = 0;
+
+    void sort(class_worker &worker, output &out, bool force){
+        timer::sort = 0;
         if (worker.sampling || force){
-            sort(worker);
+            //Reorder E
+            for (int i = 0; i < worker.E_history.size(); i++){
+                MPI_Sendrecv_replace(&worker.E_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+            //Reorder M
+            for (int i = 0; i < worker.M_history.size(); i++){
+                MPI_Sendrecv_replace(&worker.M_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
             out.store_samples(worker.E_history, "E" +  std::to_string(worker.world_ID) + ".dat",counter::store);
             out.store_samples(worker.M_history, "M" +  std::to_string(worker.world_ID) + ".dat",counter::store);
             worker.E_history.clear();
             worker.M_history.clear();
             worker.T_history.clear();
             counter::store++;
-
         }
     }
 
-    void comp(class_worker &worker, bool force){
-        timer::comp = 0;
+    void calc(class_worker &worker, bool force){
+        timer::calc = 0;
         worker.thermo.load_data(worker.T_ID, worker.T);
-        worker.thermo.compute_thermo();
-    }
-
-    void move(class_worker &worker) {
-        timer::move = 0;
-        if (!worker.sampling) {
-            if(worker.E_history.size() < 2000){return;}
-            worker.E_history.erase(worker.E_history.begin(), worker.E_history.begin() + 1000);
-            worker.M_history.erase(worker.M_history.begin(), worker.M_history.begin() + 1000);
-            worker.T_history.erase(worker.T_history.begin(), worker.T_history.begin() + 1000);
-
-            sort(worker);
-            ArrayXd E = Map<ArrayXd>(worker.E_history.data(), worker.E_history.size());
-            cout << "E size: " << E.size() << endl;
-            double tau_E = worker.thermo.autocorrelation(E);
-            tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
-            int block_length    = min((int) ceil(20*tau_E), (int)E.size()/10);
-            double c = worker.thermo.bootstrap_overlap_block(E, "c", block_length).mean();
-            worker.E_history.clear();
-            worker.M_history.clear();
-            worker.T_history.clear();
-
-            ArrayXd c_current(worker.world_size),
-                    s_current(worker.world_size);
-
-
-            MPI_Allgather(&c, 1, MPI_DOUBLE, c_current.data(), 1, MPI_DOUBLE, MPI_COMM_WORLD);
-            cout << "C: "<< c_current.transpose() << endl;
-            s_current(0) = 0;
-            for (int i = 1; i < worker.world_size; i++) {
-                s_current(i) = s_current(i - 1) + (worker.T_ladder(i) - worker.T_ladder(i - 1)) / 6.0
-                                                  * (c_current(i - 1) / worker.T_ladder(i - 1)
-                                                     + 4 * (c_current(i - 1) + c_current(i)) /
-                                                       (worker.T_ladder(i - 1) + worker.T_ladder(i))
-                                                     + c_current(i) / worker.T_ladder(i));
-            }
-
-            cout << "S: "<< s_current.transpose() << endl;
-            //Interpolation
-            int num_interp = 50;
-            vector<double> t_interp, s_interp;
-            for (int i = 1; i < worker.world_size; i++) {
-                for (int j = 0; j < num_interp; j++) {
-                    t_interp.push_back((double) j / num_interp * (worker.T_ladder(i) - worker.T_ladder(i - 1)) + worker.T_ladder(i - 1));
-                    s_interp.push_back((double) j / num_interp * (s_current(i) - s_current(i - 1)) + s_current(i - 1));
-                }
-            }
-
-            //Turn back to an Eigen Array
-            ArrayXd s = Map<ArrayXd>(s_interp.data(), s_interp.size());
-            ArrayXd t = Map<ArrayXd>(t_interp.data(), t_interp.size());
-            //Find intersections
-            ArrayXd s_linear = ArrayXd::LinSpaced(worker.world_size, s.minCoeff(), s.maxCoeff());
-            for (int i = 1; i < worker.world_size - 1; i++) {
-                int idx = math::binary_search(s, s_linear(i));
-                worker.T_ladder(i) = t(idx);
-            }
-            cout << "T: " << worker.T_ladder.transpose() << endl;
-            worker.T = worker.T_ladder(worker.T_ID);
-            worker.thermo.T = worker.T;
-
-        }
+        worker.thermo.calc_thermo();
     }
 
     void katz(class_worker &worker) {
@@ -370,6 +305,48 @@ namespace parallel {
 
 
         }
+    }
+
+    void save(class_worker &worker, output & out){
+        worker.thermo.load_data(worker.T_ID, worker.T);
+        worker.thermo.calc_thermo();
+        int n = worker.world_size;
+        ArrayXd u(n),m(n),c(n),x(n);
+        ArrayXd sigma_u(n),sigma_m(n),sigma_c(n),sigma_x(n);
+        int color, key;
+        MPI_Comm MPI_COMM_T;
+        color = 0;
+        key   = worker.T_ID;
+        MPI_Comm_split(MPI_COMM_WORLD, color, key, &MPI_COMM_T);
+
+        MPI_Gather(&worker.thermo.u, 1, MPI_DOUBLE, u.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.m, 1, MPI_DOUBLE, m.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.c, 1, MPI_DOUBLE, c.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.x, 1, MPI_DOUBLE, x.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+
+        MPI_Gather(&worker.thermo.sigma_u, 1, MPI_DOUBLE, sigma_u.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.sigma_m, 1, MPI_DOUBLE, sigma_m.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.sigma_c, 1, MPI_DOUBLE, sigma_c.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+        MPI_Gather(&worker.thermo.sigma_x, 1, MPI_DOUBLE, sigma_x.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
+
+        if(worker.T_ID == 0){
+            out.store(u,"u.dat");
+            out.store(m,"m.dat");
+            out.store(c,"c.dat");
+            out.store(x,"x.dat");
+
+            out.store(sigma_u,"u_std.dat");
+            out.store(sigma_m,"m_std.dat");
+            out.store(sigma_c,"c_std.dat");
+            out.store(sigma_x,"x_std.dat");
+
+            out.store(worker.T_ladder,"T.dat");
+            out.store(worker.model.J,"J.dat");
+            out.store(PT_constants::L,"L.dat");
+        }
+
+
+
     }
 
 }

@@ -20,9 +20,9 @@ namespace counter {
 };
 
 namespace timer {
-    extern int samp;
-    extern int save;
-    extern int comp;
+    extern int prob;
+    extern int sort;
+    extern int calc;
     extern int cout;
     extern int swap;
     extern int move;

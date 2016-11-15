@@ -26,7 +26,7 @@ void class_thermo::compute_stats(){
 
 }
 
-void class_thermo::compute_thermo(){
+void class_thermo::calc_thermo(){
     if(E.size() <= 1){cout << "Energy hasn't been loaded yet" << endl; return;}
     if(M.size() <= 1){cout << "Magnetization hasn't been loaded yet" << endl; return;}
     if(M.size() != E.size()){cout << "Data size mismatch" << endl; return;}

@@ -36,7 +36,7 @@ public:
     void   reset();
     void   load_data(int temperature_ID, double temperature);
     void   compute_stats();
-    void   compute_thermo();
+    void   calc_thermo();
 
     double flyvbjerg  (const ArrayXd & A); //Computes the effective standard deviation of a correlated series
     void   block_transform  (ArrayXd & B);

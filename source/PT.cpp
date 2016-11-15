@@ -14,39 +14,58 @@ void paralleltempering(class_worker &worker) {
     output out(worker.world_ID);
     worker.t_total.tic();
     worker.t_print.tic();
-    for (int i = 0; i < PT_constants::MCS_sample + PT_constants::MCS_warmup; i++) {
-        worker.sweep();
-        if (timer::samp >= PT_constants::rate_samp) { sample(worker); }
-        if (timer::save >= PT_constants::rate_save) { parallel::save(worker, out, false); }
-//        if (timer::comp >= PT_constants::rate_comp) { parallel::comp(worker, out, false); }
-        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
-        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
-        if (timer::move >= PT_constants::rate_move) { parallel::katz(worker); }
 
+    warmup(worker);
+    sample(worker,out);
+    parallel::sort(worker, out, true);
+    parallel::save(worker, out);
+    print_status(worker, true);
+}
+
+
+void warmup(class_worker &worker){
+    while (counter::MCS < PT_constants::MCS_warmup) {
+        worker.sweep();
+        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
+        if (timer::move >= PT_constants::rate_move) { parallel::katz(worker); }
+        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
         counter::MCS++;
-        timer::samp++;
-        timer::save++;
-        timer::comp++;
         timer::swap++;
         timer::cout++;
         timer::move++;
     }
-    parallel::save(worker, out, true);
-    print_status(worker, true);
+    //Make some more moves to be sure, in case T-movement happened recently
+    for (int i = 0; i < 1000; i++){
+        worker.sweep();
+    }
+    counter::MCS = 0;
 }
 
-void sample(class_worker &worker){
-    timer::samp = 0;
-    worker.sampling = counter::MCS > PT_constants::MCS_warmup;
-
-    if (worker.sampling) {
-        worker.T_history.push_back(worker.T_ID);
-        worker.E_history.push_back(worker.E);
-        worker.M_history.push_back(worker.M);
-    }else{
-        timer::save = 0;
-        timer::comp = 0;
+void sample(class_worker &worker, output &out){
+    worker.sampling = true;
+    while (counter::MCS < PT_constants::MCS_sample) {
+        worker.sweep();
+        if (timer::prob >= PT_constants::rate_prob) { probe(worker); }
+        if (timer::sort >= PT_constants::rate_sort) { parallel::sort(worker, out, false); }
+        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
+        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
+        counter::MCS++;
+        timer::prob++;
+        timer::sort++;
+        timer::calc++;
+        timer::swap++;
+        timer::cout++;
     }
+}
+
+
+
+void probe(class_worker &worker){
+    timer::prob = 0;
+    worker.T_history.push_back(worker.T_ID);
+    worker.E_history.push_back(worker.E);
+    worker.M_history.push_back(worker.M);
+
 }
 
 void print_status(class_worker &worker,bool override) {
@@ -54,7 +73,7 @@ void print_status(class_worker &worker,bool override) {
         timer::cout = 0;
         worker.t_total.toc();
         worker.t_print.toc();
-        if (timer::comp >= PT_constants::rate_comp) { parallel::comp(worker, false); }else{worker.thermo.reset();}
+        if (timer::calc >= PT_constants::rate_comp) { parallel::calc(worker, false); }else{worker.thermo.reset();}
         for (int i = 0; i < worker.world_size; i++){
             if(worker.T_ID == i){
                 if (worker.T_ID == 0){cout << endl;}

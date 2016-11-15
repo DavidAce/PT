@@ -14,8 +14,9 @@
 #include "nmspc_PT_constants.h"
 #include "nmspc_PT_parallel_algorithms.h"
 void paralleltempering  (class_worker &worker);
-void sweep              (class_worker &worker);
-void sample             (class_worker &worker);
+void warmup             (class_worker &worker);
+void sample             (class_worker &worker, output &out);
+void probe              (class_worker &worker);
 void print_status       (class_worker &worker, bool override);
 
 template <typename T>

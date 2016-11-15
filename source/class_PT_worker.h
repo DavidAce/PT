@@ -16,6 +16,7 @@
 #include "class_model.h"
 #include "class_tic_toc.h"
 #include "class_PT_thermo.h"
+#include "class_PT_groundstate.h"
 #include "nmspc_PT_constants.h"
 #include "nmspc_PT_counters_timers.h"
 #include "nmspc_math_algorithms.h"
@@ -58,6 +59,9 @@ public:
 
     //Lattice
     class_model model;
+    //Ground state
+    class_PT_groundstate groundstate;
+
 
     //Thermodynamics
     class_thermo thermo;
@@ -65,9 +69,9 @@ public:
     //PT Energy and Order parameter
     double E,M;                         //Current Energy and Order parameter
     double E_trial, M_trial;                 //Proposed
-//    Array<int ,   PT_constants::rate_save, 1> T_history;
-//    Array<double, PT_constants::rate_save ,1> E_history;
-//    Array<double, PT_constants::rate_save ,1> M_history;
+//    Array<int ,   PT_constants::rate_sort, 1> T_history;
+//    Array<double, PT_constants::rate_sort ,1> E_history;
+//    Array<double, PT_constants::rate_sort ,1> M_history;
     vector<int >   T_history;
     vector<double> E_history;
     vector<double> M_history;

@@ -12,9 +12,9 @@
 #endif
 
 
-//void output::store_samples(class_worker &worker, int save){
-//    //If save == 0, create folders
-//    if (save == 0){
+//void output::store_samples(class_worker &worker, int sort){
+//    //If sort == 0, create folders
+//    if (sort == 0){
 //        folder ="output/"  + input::job_name + "/timeseries/";
 //        create_folder_master(worker.world_ID);
 //        write_to_file(worker.E_history, folder + "E" + std::to_string(worker.world_ID));
