@@ -23,32 +23,57 @@ using namespace Eigen;
 class output {
 private:
 
-    string      folder;
+    string      output_folder;
+    string      timeseries_folder       = "timeseries/";
+    string      groundstates_folder     = "groundstates/";
+    string      thermodynamics_folder   = "thermodynamics/";
     int         iteration;
     int         precision = 12;
     int         world_ID;
 public:
-    output(int id):world_ID(id){};
+    output(int id):world_ID(id){
+        //Create folders
+        output_folder           = "output/";
+        timeseries_folder       = output_folder + PT_constants::job_name + "/timeseries/";
+        groundstates_folder     = output_folder + PT_constants::job_name + "/groundstates/";
+        thermodynamics_folder   = output_folder + PT_constants::job_name + "/thermodynamics/";
+        create_folder_master(timeseries_folder    , world_ID);
+        create_folder_master(groundstates_folder  , world_ID);
+        create_folder_master(thermodynamics_folder, world_ID);
+    };
     void create_folder(string folder_name);
-    void create_folder_master(const int &id);
-    void create_folder_worker();
+    void create_folder_master(string folder, const int &id);
+    void create_folder_worker(string folder);
     int mkdir_p(const char *path);
+
+
+    //Groundstate Lattices
+    template<typename T>
+    void store_groundstates(vector<T> &lattice_groundstate){
+        if (world_ID == 0) {
+            for (int i = 0; i < (int)lattice_groundstate.size(); i++) {
+                write_to_file(lattice_groundstate[i], groundstates_folder + "lattice" + to_string(i) + ".dat");
+            }
+        }
+        lattice_groundstate.clear();
+    }
+
 
     //Generic data
     template<typename Derived>
-    void store(const ArrayBase<Derived> &data, std::string name){
-        folder ="output/"  + PT_constants::job_name + "/";
-        write_to_file(data, folder + name);
+    void store_thermo(const ArrayBase<Derived> &data, std::string name){
+        write_to_file(data, thermodynamics_folder + name);
 
     }
 
     //Generic data
     template<typename T>
-    void store(const T &data, std::string name){
-        folder ="output/"  + PT_constants::job_name + "/";
-        write_to_file(data, folder + name);
-
+    void store_thermo(const T &data, std::string name){
+        string folder = output_folder  + PT_constants::job_name + "/" + thermodynamics_folder;
+        create_folder_master(folder,world_ID);
+        write_to_file(data, thermodynamics_folder + name);
     }
+
 
 
 
@@ -56,11 +81,9 @@ public:
     template<typename Derived>
     void store_samples(const ArrayBase<Derived> &data, std::string name, int store_counter){
         if (store_counter == 0){
-            folder ="output/"  + PT_constants::job_name + "/timeseries/";
-            create_folder_master(world_ID);
-            write_to_file(data, folder + name);
+            write_to_file(data, timeseries_folder + name);
         }else{
-            append_to_file(data, folder + name);
+            append_to_file(data, timeseries_folder + name);
         }
     }
 
@@ -68,11 +91,9 @@ public:
     void store_samples(vector<T> vec_data, std::string name, int store_counter){
         ArrayXd data = Map<ArrayXd>(vec_data.data(), vec_data.size());
         if (store_counter == 0){
-            folder ="output/"  + PT_constants::job_name + "/timeseries/";
-            create_folder_master(world_ID);
-            write_to_file(data, folder + name);
+            write_to_file(data, timeseries_folder + name);
         }else{
-            append_to_file(data, folder + name);
+            append_to_file(data, timeseries_folder + name);
         }
     }
 

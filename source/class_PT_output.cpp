@@ -70,20 +70,20 @@ void output::create_folder(string folder_name){
 
     if (mkdir_p(folder_name.c_str()) == 0)
     {
-        cout << "Set folder: " << folder_name << endl;
+        cout << "Created folder: " << folder_name << endl;
 
     }else{
-        cout << "Failed to set folder: " << folder_name << endl;
+        cout << "Failed to create folder: " << folder_name << endl;
     }
 }
 
-void output::create_folder_master(const int &id){
+void output::create_folder_master(string folder, const int &id){
     if(id == 0){
         create_folder(folder);
     }
 }
 
-void output::create_folder_worker(){
+void output::create_folder_worker(string folder){
     create_folder(folder);
 }
 

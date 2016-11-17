@@ -330,19 +330,19 @@ namespace parallel {
         MPI_Gather(&worker.thermo.sigma_x, 1, MPI_DOUBLE, sigma_x.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
 
         if(worker.T_ID == 0){
-            out.store(u,"u.dat");
-            out.store(m,"m.dat");
-            out.store(c,"c.dat");
-            out.store(x,"x.dat");
+            out.store_thermo(u, "u.dat");
+            out.store_thermo(m, "m.dat");
+            out.store_thermo(c, "c.dat");
+            out.store_thermo(x, "x.dat");
 
-            out.store(sigma_u,"u_std.dat");
-            out.store(sigma_m,"m_std.dat");
-            out.store(sigma_c,"c_std.dat");
-            out.store(sigma_x,"x_std.dat");
+            out.store_thermo(sigma_u, "u_std.dat");
+            out.store_thermo(sigma_m, "m_std.dat");
+            out.store_thermo(sigma_c, "c_std.dat");
+            out.store_thermo(sigma_x, "x_std.dat");
 
-            out.store(worker.T_ladder,"T.dat");
-            out.store(worker.model.J,"J.dat");
-            out.store(PT_constants::L,"L.dat");
+            out.store_thermo(worker.T_ladder, "T.dat");
+            out.store_thermo(worker.model.J, "J.dat");
+            out.store_thermo(PT_constants::L, "L.dat");
         }
 
 

@@ -28,6 +28,7 @@ int timer::calc;
 int timer::cout;
 int timer::swap;
 int timer::move;
+int timer::sync;
 
 //Constructors
 class_worker::class_worker(int & id, int & size):
@@ -68,6 +69,7 @@ void class_worker::start_counters() {
     timer::calc                 = 0;
     timer::swap 				= 0;
     timer::move 				= 0;
+    timer::sync 				= 0;
 }
 
 
@@ -85,11 +87,14 @@ void class_worker::sweep(){
     for (int i = 0; i < PT_constants::N ; i++){
         model.make_new_state(E,M, E_trial, M_trial);
         counter::trials++;
-        if(rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T))){
+        if(rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T))) {
             counter::accepts++;
-            E                           = E_trial;
-            M                           = M_trial;
+            E = E_trial;
+            M = M_trial;
             model.flip();
+            if (!sampling) {
+                groundstate.check(E, model.lattice);
+            }
         }
     }
     t_sweep.toc();

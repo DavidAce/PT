@@ -15,29 +15,34 @@ void paralleltempering(class_worker &worker) {
     worker.t_total.tic();
     worker.t_print.tic();
 
-    warmup(worker);
+    warmup(worker,out);
     sample(worker,out);
     parallel::sort(worker, out, true);
     parallel::save(worker, out);
+
     print_status(worker, true);
 }
 
 
-void warmup(class_worker &worker){
+void warmup(class_worker &worker, output &out){
     while (counter::MCS < PT_constants::MCS_warmup) {
         worker.sweep();
         if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
         if (timer::move >= PT_constants::rate_move) { parallel::katz(worker); }
+        if (timer::sync >= PT_constants::rate_sync) { worker.groundstate.sync(); }
         if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
         counter::MCS++;
         timer::swap++;
         timer::cout++;
         timer::move++;
+        timer::sync++;
     }
     //Make some more moves to be sure, in case T-movement happened recently
     for (int i = 0; i < 1000; i++){
         worker.sweep();
     }
+    //Store the lattice groundstates into a file
+    out.store_groundstates(worker.groundstate.lattices_GS);
     counter::MCS = 0;
 }
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5)
 project(PT)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})

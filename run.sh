@@ -7,11 +7,11 @@ then
     echo "We're on triolith!";
     if [[ "${option}" == *"valgrind"* ]]
     then
-        sbatch run_triolith_debug.sh
+        sbatch bash_scripts/mode/run_triolith_debug.sh
     else
-        sbatch run_triolith.sh
+        sbatch bash_scripts/mode/run_triolith.sh
     fi
 else
     echo "We're on my pc!"
-    ./run_my_pc.sh ${option}
+    ./bash_scripts/mode/run_my_pc.sh ${option}
 fi

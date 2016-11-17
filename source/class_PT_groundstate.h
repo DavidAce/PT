@@ -11,15 +11,15 @@ using namespace Eigen;
 using namespace std;
 class class_PT_groundstate {
 private:
-    bool             empty;
-    double           E_groundstate;
-    vector<ArrayXXi> lattice_groundstate;
+    int              maximum_storage = 10;
+
+
 public:
-    class_PT_groundstate(){
-        empty = true;
-    };
-    void check_groundstate(double &E, ArrayXXi &lattice);
-    void sync_groundstates();
+    class_PT_groundstate(){};
+    double           E_GS;
+    vector<ArrayXXi> lattices_GS;
+    void check(double &E, ArrayXXi &lattice);
+    void sync();
 
 };
 

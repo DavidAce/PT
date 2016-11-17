@@ -22,8 +22,8 @@ public:
     };
     ArrayXXi lattice;                           //The Lattice Data structure
     //double E_new, M_new;                      //Store values from MC-trial
-    const bool discrete_model = true;    //Toggle model type
-    const int J;                         //Interaction strength
+    const bool discrete_model = true;           //Toggle model type
+    const int J;                                //Interaction strength
 
     void randomize_lattice();
     inline void  __attribute__((always_inline)) flip(){
@@ -48,7 +48,6 @@ public:
     }
 
     friend std::ostream &operator<<(std::ostream &, const class_model &);
-
 };
 
 
