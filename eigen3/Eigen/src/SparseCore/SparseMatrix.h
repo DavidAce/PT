@@ -35,7 +35,7 @@ namespace Eigen {
   * \tparam _Index the type of the indices. It has to be a \b signed type (e.g., short, int, std::ptrdiff_t). Default is \c int.
   *
   * This class can be extended with the help of the plugin mechanism described on the page
-  * \ref TopicCustomizingEigen by defining the preprocessor symbol \c EIGEN_SPARSEMATRIX_PLUGIN.
+  * \ref TopicCustomizing_Plugins by defining the preprocessor symbol \c EIGEN_SPARSEMATRIX_PLUGIN.
   */
 
 namespace internal {
@@ -94,6 +94,7 @@ class SparseMatrix
 {
     typedef SparseCompressedBase<SparseMatrix> Base;
     using Base::convert_index;
+    friend class SparseVector<_Scalar,0,_Index>;
   public:
     using Base::isCompressed;
     using Base::nonZeros;
