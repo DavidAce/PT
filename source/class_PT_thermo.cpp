@@ -7,8 +7,8 @@
 void class_thermo::load_data(int temperature_ID, double temperature){
     T       = temperature;
     T_ID    = temperature_ID;
-    E       = read_file("output/" + PT_constants::job_name + "/timeseries/E" + to_string(T_ID) + ".dat");
-    M       = read_file("output/" + PT_constants::job_name + "/timeseries/M" + to_string(T_ID) + ".dat");
+    E       = read_file(PT_constants::output_path + "timeseries/E" + to_string(T_ID) + ".dat");
+    M       = read_file(PT_constants::output_path + "timeseries/M" + to_string(T_ID) + ".dat");
 }
 
 void class_thermo::compute_stats(){

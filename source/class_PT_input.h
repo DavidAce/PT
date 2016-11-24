@@ -31,21 +31,22 @@ private:
 
 
     void broadcast_string(std::string&,int);
-    std::string filename;
     std::string job_name;
-    bool        job_given;
-public:
-    input(std::string &name, int world_ID): filename(name){
-        if (filename.empty()){
-            job_given = false;
-            job_name  = "default";
-            load_settings_from_file("input/default.dat",world_ID);
-        }else{
-            job_given           = true;
-            job_name            = shave_path(filename);
-            load_settings_from_file(filename, world_ID);
+    std::string model_name;
+    std::string input_file_name;
+    std::string output_path;
 
+public:
+    input(std::string mname, std::string fname, int world_ID): input_file_name(fname), model_name(mname){
+        if (input_file_name.empty()){
+            job_name        = "default";
+            model_name      = "default";
+            input_file_name = "input/default/default.dat";
         }
+
+        job_name            = shave_path(input_file_name);
+        output_path         = "output/" + model_name + "/" + job_name + "/";
+        load_settings_from_file(input_file_name, world_ID);
         broadcast_parameters(world_ID);
     }
     double      get_T_min();
@@ -57,8 +58,10 @@ public:
     int         get_N();
     int         get_MCS_warmup();
     int         get_MCS_sample();
-    std::string get_filename();
+    std::string get_input_file();
     std::string get_job_name();
+    std::string get_model_name();
+    std::string get_output_path();
     void        broadcast_parameters(int world_ID);
     std::string shave_path(std::string filename);
 

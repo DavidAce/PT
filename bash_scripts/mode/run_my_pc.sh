@@ -52,7 +52,7 @@ then
         ulimit -c unlimited
         for filename in input/$ARG2/*.dat; do
             echo "Executing file: $filename"
-            mpirun -n 12  -bind-to core:overload-allowed ./build/Release/PT "$filename"
+            mpirun -n 12  -bind-to core:overload-allowed ./build/Release/PT $ARG2 "$filename"
         done
     else 
         echo "Use syntax: ./run.sh batch [jobname]"

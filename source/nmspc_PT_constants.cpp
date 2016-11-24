@@ -8,7 +8,9 @@
 namespace PT_constants{
     //Job name (used for input and output of files)
     std::string job_name;
-    std::string filename;
+    std::string input_file_name;
+    std::string model_name;
+    std::string output_path;
 
     //PT class_thermo properties
     double T_min;            //Minimum temperature for thermodynamic quantities
@@ -23,17 +25,19 @@ namespace PT_constants{
     int MCS_warmup;
     int MCS_sample;
     void copy_input(input &in) {
-       T_min        = in.get_T_min();
-       T_max        = in.get_T_max();
-       J            = in.get_J();
-       d            = in.get_d();
-       L            = in.get_L();
-       N            = in.get_N();
-       MCS_warmup   = in.get_MCS_warmup();
-       MCS_sample   = in.get_MCS_sample();
-       job_name     = in.get_job_name();
-       filename     = in.get_filename();
-   }
+        T_min               = in.get_T_min();
+        T_max               = in.get_T_max();
+        J                   = in.get_J();
+        d                   = in.get_d();
+        L                   = in.get_L();
+        N                   = in.get_N();
+        MCS_warmup          = in.get_MCS_warmup();
+        MCS_sample          = in.get_MCS_sample();
+        job_name            = in.get_job_name();
+        model_name          = in.get_model_name();
+        input_file_name     = in.get_input_file();
+        output_path         = in.get_output_path();
+    }
 
 }
 

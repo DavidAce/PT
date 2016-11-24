@@ -33,7 +33,7 @@ void input::load_settings_from_file(std::string filename, int world_ID){
 
     if (!inputFile.is_open()){
         if (world_ID == 0) {
-            printf("Parameter file not found, exiting\n");
+            printf("Parameter file not found : %s \n, exiting\n", filename.c_str());
             MPI_Abort(MPI_COMM_WORLD, 1);
             exit(1);
         }
@@ -109,9 +109,9 @@ int input::get_MCS_sample()
     return MCS_sample;
 }
 
-std::string input::get_filename()
+std::string input::get_input_file()
 {
-    return filename;
+    return input_file_name;
 }
 
 std::string input::get_job_name()
@@ -119,7 +119,16 @@ std::string input::get_job_name()
     return job_name;
 }
 
+std::string input::get_model_name()
+{
+    return model_name;
+}
 
+
+std::string input::get_output_path()
+{
+    return output_path;
+}
 
 
 /** Function which broadcasts all parameters to all other MPI processes **/
@@ -133,7 +142,7 @@ void input::broadcast_parameters(int world_ID){
     MPI_Bcast(&N         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&MCS_warmup,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&MCS_sample,1, MPI_INT   ,0,MPI_COMM_WORLD);
-    broadcast_string(filename,world_ID);
+    broadcast_string(input_file_name,world_ID);
 
 }
 

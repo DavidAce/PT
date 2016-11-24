@@ -10,7 +10,10 @@
 namespace PT_constants {
     //Job name (used for input and output of files)
     extern std::string job_name;
-    extern std::string filename;
+    extern std::string model_name;
+    extern std::string input_file_name;
+    extern std::string output_path;
+
 
     //PT class_thermo properties
     extern double T_min;            //Minimum temperature for thermodynamic quantities

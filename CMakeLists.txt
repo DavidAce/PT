@@ -2,8 +2,11 @@ cmake_minimum_required(VERSION 3.5)
 project(PT)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
-include_directories(eigen3)
+message("Project root direrctory is: ${PROJECT_SOURCE_DIR}")
+set(bin_dir ${PROJECT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${bin_dir})
 
+include_directories(eigen3)
 
 # Require MPI for this project:
 find_package(MPI REQUIRED)

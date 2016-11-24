@@ -23,20 +23,18 @@ using namespace Eigen;
 class output {
 private:
 
-    string      output_folder;
-    string      timeseries_folder       = "timeseries/";
-    string      groundstates_folder     = "groundstates/";
-    string      thermodynamics_folder   = "thermodynamics/";
+    string      timeseries_folder     ;
+    string      groundstates_folder   ;
+    string      thermodynamics_folder ;
     int         iteration;
     int         precision = 12;
     int         world_ID;
 public:
     output(int id):world_ID(id){
         //Create folders
-        output_folder           = "output/";
-        timeseries_folder       = output_folder + PT_constants::job_name + "/timeseries/";
-        groundstates_folder     = output_folder + PT_constants::job_name + "/groundstates/";
-        thermodynamics_folder   = output_folder + PT_constants::job_name + "/thermodynamics/";
+        timeseries_folder       = PT_constants::output_path + "timeseries/";
+        groundstates_folder     = PT_constants::output_path + "groundstates/";
+        thermodynamics_folder   = PT_constants::output_path + "thermodynamics/";
         create_folder_master(timeseries_folder    , world_ID);
         create_folder_master(groundstates_folder  , world_ID);
         create_folder_master(thermodynamics_folder, world_ID);
@@ -69,7 +67,7 @@ public:
     //Generic data
     template<typename T>
     void store_thermo(const T &data, std::string name){
-        string folder = output_folder  + PT_constants::job_name + "/" + thermodynamics_folder;
+        string folder = thermodynamics_folder;
         create_folder_master(folder,world_ID);
         write_to_file(data, thermodynamics_folder + name);
     }
