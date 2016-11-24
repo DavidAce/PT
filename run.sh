@@ -1,7 +1,6 @@
 #!/bin/bash
-option=$1
+option=$@
 echo "Starting job"
-option=$1
 if [[ "$HOSTNAME" == *"triolith"* ]]
 then
     echo "We're on triolith!";
