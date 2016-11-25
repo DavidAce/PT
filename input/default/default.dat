@@ -4,11 +4,12 @@ the magnetic field in an cuboid of measure 11x iteratively with chi dependence
 
 Simulation Parameters
 ==================================================================================================
-T_min= 0.1 [Number of unit cells in the X and Y directions are 2*Xcell centered around origo]
-T_max= 6 [Number of unit cells in the X and Y directions are 2*Ycell centered around origo]
-J= 1 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-L= 12 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-d= 2 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-MCS_warmup= 10000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
-MCS_sample= 20000 [Number of unit cells in the Z directions are 2*Zcell  centered around origo]
+T_min= 0.1  [Minimum temperature in units of J1]
+T_max= 6    [Minimum temperature in units of J2]
+J1= 1       [Coupling 1]
+J2= 1       [Coupling 2]
+L= 12       [Linear lattice size]
+d= 2        [dimension]
+MCS_warmup= 10000 [Number of monte carlo sweeps for equilibration period]
+MCS_sample= 20000 [Number of monte carlo sweeps for sampling period]
 

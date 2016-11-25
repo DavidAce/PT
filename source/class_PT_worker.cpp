@@ -48,7 +48,6 @@ class_worker::class_worker(int & id, int & size):
     E        = model.get_E();
     M        = model.get_M();
     sampling = false;
-
     direction = 0;
     start_counters();
     set_initial_temperatures();

@@ -73,8 +73,6 @@ public:
     }
 
 
-
-
     //File streams
     template<typename Derived>
     void store_samples(const ArrayBase<Derived> &data, std::string name, int store_counter){
