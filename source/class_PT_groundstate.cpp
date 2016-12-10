@@ -6,7 +6,7 @@
 #include "nmspc_PT_counters_timers.h"
 
 
-void class_PT_groundstate::check(double &E, ArrayXXi &lattice) {
+void class_PT_groundstate::check(int E, ArrayXXi &lattice) {
     if (lattices_GS.empty()){
         E_GS = E;
         lattices_GS.push_back(lattice);
@@ -42,10 +42,10 @@ void class_PT_groundstate::sync() {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);         //Get total number of threads
     MPI_Comm_rank(MPI_COMM_WORLD, &world_ID);           //Establish thread number of this worker
 
-    ArrayXd E_GS_all(world_size);
+    ArrayXi E_GS_all(world_size);
     ArrayXi num_GS_all(world_size);
 
-    MPI_Allgather(&E_GS,1,MPI_DOUBLE,E_GS_all.data(),1, MPI_DOUBLE, MPI_COMM_WORLD);
+    MPI_Allgather(&E_GS,1,MPI_INT,E_GS_all.data(),1, MPI_INT, MPI_COMM_WORLD);
     MPI_Allgather(&GS_num,1,MPI_INT,num_GS_all.data(),1, MPI_INT, MPI_COMM_WORLD);
 //    cout << E_GS_all.transpose() << endl;
 //    cout << num_GS_all.transpose() << endl << endl;

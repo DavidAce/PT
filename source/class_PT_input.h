@@ -20,7 +20,8 @@ class input {
 private:
     double T_min;
     double T_max;
-    int J;
+    int J1;
+    int J2;
 
     int L;
     int d;
@@ -41,17 +42,19 @@ public:
         if (input_file_name.empty()){
             job_name        = "default";
             model_name      = "default";
-            input_file_name = "input/default/default.dat";
+            input_file_name = "input/template.dat";
+        }else{
+            job_name            = shave_path(input_file_name);
         }
 
-        job_name            = shave_path(input_file_name);
         output_path         = "output/" + model_name + "/" + job_name + "/";
         load_settings_from_file(input_file_name, world_ID);
         broadcast_parameters(world_ID);
     }
     double      get_T_min();
     double      get_T_max();
-    int         get_J();
+    int         get_J1();
+    int         get_J2();
 
     int         get_L();
     int         get_d();

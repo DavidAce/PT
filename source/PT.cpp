@@ -67,9 +67,9 @@ void sample(class_worker &worker, output &out){
 
 void probe(class_worker &worker){
     timer::prob = 0;
-    worker.T_history.push_back(worker.T_ID);
-    worker.E_history.push_back(worker.E);
-    worker.M_history.push_back(worker.M);
+    worker.T_history.emplace_back(worker.T_ID);
+    worker.E_history.emplace_back(worker.model);
+    worker.M_history.emplace_back(worker.model->);
 
 }
 
@@ -110,10 +110,10 @@ void print_status(class_worker &worker,bool override) {
                     cout << " tau: " << left << setw(8) << setprecision(4) << worker.thermo.tau_E ;
                 }
                 if(debug_status){
-                    cout << " E: "        << left << setw(9) << setprecision(2)   << worker.E
-                         << " M: "        << left << setw(9) << setprecision(2)   << worker.M;
-                    cout << " E_tr: "     << left << setw(9) << setprecision(2)   << worker.E_trial
-                         << " M_tr: "     << left << setw(9) << setprecision(2)   << worker.M_trial;
+                    cout << " E: "        << left << setw(9) << setprecision(2)   << worker.model->E
+                         << " M: "        << left << setw(9) << setprecision(2)   << worker.model->M;
+                    cout << " E_tr: "     << left << setw(9) << setprecision(2)   << worker.model->E_trial
+                         << " M_tr: "     << left << setw(9) << setprecision(2)   << worker.model->M_trial;
                 }
                 cout << " Sw: "    << left << setw(5) << counter::swap_accepts
                      << " MCS: "   << left << setw(10) << counter::MCS;

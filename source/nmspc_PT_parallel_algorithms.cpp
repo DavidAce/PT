@@ -25,7 +25,7 @@ namespace parallel {
             }
         }
         //Send current E neighbors dn and receive from above.
-        MPI_Sendrecv(&worker.E, 1, MPI_DOUBLE, worker.world_ID_dn, 100, &E_up, 1, MPI_DOUBLE, worker.world_ID_up, 100, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(&worker.model->E, 1, MPI_DOUBLE, worker.world_ID_dn, 100, &E_up, 1, MPI_DOUBLE, worker.world_ID_up, 100, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         //Now both swappees need to know if it is ok to go ahead with a swap.
         if (debug_swap) {
@@ -41,7 +41,7 @@ namespace parallel {
 
         if (myTurn) {
             double T_up = worker.T_ladder(math::mod(worker.T_ID + 1, worker.world_size));
-            P_swap = exp((worker.E - E_up)*(1 / worker.T - 1 / T_up)); //Swap probability
+            P_swap = exp((worker.model->E - E_up)*(1 / worker.T - 1 / T_up)); //Swap probability
             swap = rn::uniform_double_1() < fmin(1, P_swap) ? 1 : 0;
             if (worker.T_ID == worker.world_size -1 ){ swap = 0;}
             MPI_Send(&swap, 1, MPI_INT, worker.world_ID_up, 110, MPI_COMM_WORLD);
@@ -341,8 +341,9 @@ namespace parallel {
             out.store_thermo(sigma_x, "x_std.dat");
 
             out.store_thermo(worker.T_ladder, "T.dat");
-            out.store_thermo(worker.model.J, "J.dat");
-            out.store_thermo(PT_constants::L, "L.dat");
+            out.store_thermo(worker.model->J1, "J1.dat");
+            out.store_thermo(worker.model->J1, "J2.dat");
+            out.store_thermo(worker.model->L, "L.dat");
         }
 
 

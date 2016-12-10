@@ -12,20 +12,6 @@
 #endif
 
 
-//void output::store_samples(class_worker &worker, int sort){
-//    //If sort == 0, create folders
-//    if (sort == 0){
-//        folder ="output/"  + input::job_name + "/timeseries/";
-//        create_folder_master(worker.world_ID);
-//        write_to_file(worker.E_history, folder + "E" + std::to_string(worker.world_ID));
-//        write_to_file(worker.M_history, folder + "M" + std::to_string(worker.world_ID));
-//    }else{
-//        append_to_file(worker.E_history,folder +  "E" + std::to_string(worker.world_ID));
-//        append_to_file(worker.E_history,folder +  "M" + std::to_string(worker.world_ID));
-//    }
-//}
-
-
 
 
 int output::mkdir_p(const char *path){

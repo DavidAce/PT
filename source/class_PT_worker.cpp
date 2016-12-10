@@ -34,7 +34,8 @@ int timer::sync;
 class_worker::class_worker(int & id, int & size):
                                 world_ID(id),
                                 world_size(size),
-                                model(PT_constants::L, PT_constants::J),
+//                                model(PT_constants::L, PT_constants::J),
+//                                model(PT_constants::model_name, PT_constants::J1),
                                 t_total                (profiling_total,                3,"Total Time"),
                                 t_print                (profiling_print,                3,"Time"),
                                 t_sweep                (profiling_sweep,                3,"t_sweep"),
@@ -44,11 +45,10 @@ class_worker::class_worker(int & id, int & size):
 {
 
     rn::rng.seed((unsigned long)world_ID);
-    model.randomize_lattice();
-    E        = model.get_E();
-    M        = model.get_M();
-    sampling = false;
-    direction = 0;
+    auto factory = modelFactory();
+    model        = factory.create(PT_constants::model_name, PT_constants::L, PT_constants::J1, PT_constants::J2);
+    sampling     = false;
+    direction    = 0;
     start_counters();
     set_initial_temperatures();
     cout << "ID: " << world_ID << " Started OK"<<endl;
@@ -84,15 +84,13 @@ void class_worker::set_initial_temperatures(){
 void class_worker::sweep(){
     t_sweep.tic();
     for (int i = 0; i < PT_constants::N ; i++){
-        model.make_new_state(E,M, E_trial, M_trial);
+        model->make_new_state();
         counter::trials++;
-        if(rn::uniform_double_1() < fmin(1,exp(-(E_trial - E)/T))) {
+        if(rn::uniform_double_1() < fmin(1,exp(-(model->E_trial - model->E)/T))) {
             counter::accepts++;
-            E = E_trial;
-            M = M_trial;
-            model.flip();
+            model->accept_state();
             if (!sampling) {
-                groundstate.check(E, model.lattice);
+                groundstate.check(model->E, model->lattice);
             }
         }
     }
@@ -105,10 +103,10 @@ std::ostream &operator<<(std::ostream &os, const class_worker &worker) {
     os << setprecision(2);
     os << "ID: " << worker.world_ID
        << " Current State: "
-       << "     E = " << worker.E
-       << "     M = " << worker.M  << endl
-       << "     E_trial = " << worker.E_trial
-       << "     M_trial = " << worker.M_trial
+       << "     E = " << worker.model->E
+       << "     M = " << worker.model->M << endl
+       << "     E_trial = " << worker.model->E_trial
+       << "     M_trial = " << worker.model->M_trial
        << endl;
     return os;
 }

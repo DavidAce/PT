@@ -42,7 +42,7 @@ then
     then
         echo "Use syntax: ./run.sh batch [jobname]"
     else 
-        echo "WTF? "
+        echo "Use syntax: ./run.sh batch [jobname]"
     fi
 elif [[ NUMARGS -gt 1 ]]
 then

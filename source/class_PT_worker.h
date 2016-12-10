@@ -35,14 +35,13 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
 }
 
 
-
+template <class model_type, typename observable_type>
 class class_worker {
 private:
 
 public:
     class_worker(int &id, int &size);                 //Constructor
     //Main data structures of the WL algorithm. Needed very often.
-
 
     //MPI Communicator
     int world_ID;                   //Thread number
@@ -53,12 +52,9 @@ public:
     ArrayXd T_ladder;
     int world_ID_up, world_ID_dn;
     bool sampling;
-//    double E_avg, E_avg_sq;
-//    double M_avg, M_avg_sq;
 
-
-    //Lattice
-    class_model model;
+    //Model, including lattice and observables
+     model_type model;
     //Ground state
     class_PT_groundstate groundstate;
 
@@ -67,8 +63,8 @@ public:
     class_thermo thermo;
 
     //PT Energy and Order parameter
-    double E,M;                         //Current Energy and Order parameter
-    double E_trial, M_trial;                 //Proposed
+//    double E,M;                         //Current Energy and Order parameter
+//    double E_trial, M_trial;                 //Proposed
 //    Array<int ,   PT_constants::rate_sort, 1> T_history;
 //    Array<double, PT_constants::rate_sort ,1> E_history;
 //    Array<double, PT_constants::rate_sort ,1> M_history;
@@ -97,7 +93,7 @@ public:
     //Functions
     void start_counters();
     void set_initial_temperatures();
-    void sweep()                __attribute__((hot));
+    void sweep() __attribute__((hot));
     friend std::ostream &operator<<(std::ostream &, const class_worker &);
 };
 

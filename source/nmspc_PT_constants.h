@@ -20,7 +20,8 @@ namespace PT_constants {
     extern double T_max;            //Maximum temperature for thermodynamic quantities
 
     //Lattice Properties
-    extern int J;                   //Interaction strength (coupling)
+    extern int J1;                   //Interaction strength (coupling)
+    extern int J2;                   //Interaction strength (coupling)
     extern int d;                   //Dimension
     extern int L;                   //Linear size
     extern int N;                   //Number of spins/particles

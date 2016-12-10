@@ -67,5 +67,5 @@ endforeach()
 list(REMOVE_DUPLICATES PT_INCLUDE_DIRS)
 
 include_directories(${PT_INCLUDE_DIRS})
-add_executable (PT main.cpp ${PT_SOURCES} source/class_PT_thermo.cpp source/class_PT_thermo.h source/class_PT_ladder.cpp source/class_PT_ladder.h source/class_PT_groundstate.cpp source/class_PT_groundstate.h)
+add_executable (PT main.cpp ${PT_SOURCES})
 

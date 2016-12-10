@@ -46,7 +46,8 @@ void input::load_settings_from_file(std::string filename, int world_ID){
 
                 if (t_reader == "T_min=") { r_pick >> T_min; }
                 if (t_reader == "T_max=") { r_pick >> T_max; }
-                if (t_reader == "J=") { r_pick >> J; }
+                if (t_reader == "J1=") { r_pick >> J1; }
+                if (t_reader == "J2=") { r_pick >> J2; }
                 if (t_reader == "L=") { r_pick >> L; }
                 if (t_reader == "d=") { r_pick >> d; }
                 if (t_reader == "MCS_warmup=") { r_pick >> MCS_warmup; }
@@ -79,10 +80,16 @@ double input::get_T_max()
     return T_max;
 }
 
-int input::get_J()
+int input::get_J1()
 {
-    return J;
+    return J1;
 }
+
+int input::get_J2()
+{
+    return J2;
+}
+
 
 int input::get_L()
 {
@@ -136,12 +143,14 @@ std::string input::get_output_path()
 void input::broadcast_parameters(int world_ID){
     MPI_Bcast(&T_min     ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(&T_max     ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
-    MPI_Bcast(&J         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    MPI_Bcast(&J1        ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
+    MPI_Bcast(&J2        ,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
     MPI_Bcast(&L         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&d         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&N         ,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&MCS_warmup,1, MPI_INT   ,0,MPI_COMM_WORLD);
     MPI_Bcast(&MCS_sample,1, MPI_INT   ,0,MPI_COMM_WORLD);
+    broadcast_string(model_name,world_ID);
     broadcast_string(input_file_name,world_ID);
 
 }

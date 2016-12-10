@@ -1,7 +1,8 @@
 #include <iostream>
 #include <mpi.h>
 #include "source/PT.h"
-#include "source/class_PT_input.h"
+
+
 int main(int argc, char **argv) {
 
 
@@ -34,8 +35,24 @@ int main(int argc, char **argv) {
                     << "    mpirun -n [nprocs] ./[output_path]/PT [modelname] [input_file_name]"
                     << endl;}
     }
+
     input in(model_name, file_name, world_ID);
     PT_constants::copy_input(in);
+    enum Model_Type {Ising, J1J2};
+    enum Model_Scalar {int, double};
+    Model_Type model_type;
+    Model_Scalar model_scalar;
+
+    if (model_name == "ising"){
+        model_type  = Ising;
+        model_scalar= int;
+    }else if (model_name == "J1J2"){
+        model_type = J1J2;
+        model_scalar=double;
+    }else{
+        model_type = Ising;
+        model_scalar=int;
+    }
 
 
     class_worker worker(world_ID, world_size);

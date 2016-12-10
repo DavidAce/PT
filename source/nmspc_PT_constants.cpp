@@ -17,7 +17,8 @@ namespace PT_constants{
     double T_max;            //Maximum temperature for thermodynamic quantities
 
     //Lattice Properties
-    int J;                   //Interaction strength (coupling)
+    int J1;                   //Interaction strength (coupling)
+    int J2;                   //Interaction strength (coupling)
     int d;                   //Dimension
     int L;                   //Linear size
     int N;                   //Number of spins/particles
@@ -27,7 +28,8 @@ namespace PT_constants{
     void copy_input(input &in) {
         T_min               = in.get_T_min();
         T_max               = in.get_T_max();
-        J                   = in.get_J();
+        J1                  = in.get_J1();
+        J2                  = in.get_J2();
         d                   = in.get_d();
         L                   = in.get_L();
         N                   = in.get_N();
