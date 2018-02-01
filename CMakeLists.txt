@@ -73,7 +73,7 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" )
     set(COMMON_OPTIONS ${COMMON_OPTIONS}   -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     message("Special flags for Clang:  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}  --gcc-toolchain=/usr/local/lib/gcc -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
+    set(COMMON_OPTIONS ${COMMON_OPTIONS}  --gcc-toolchain=/usr/local/lib/gcc/7 -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
 endif()
 
 
