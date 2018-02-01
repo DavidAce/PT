@@ -63,6 +63,7 @@ if ("${this_host}" MATCHES "triolith")
 else()
     message("Host: ${this_host}")
     set(CMAKE_CXX_COMPILER mpicxx)
+    set(CMAKE_)
 endif()
 
 
@@ -72,7 +73,7 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" )
     set(COMMON_OPTIONS ${COMMON_OPTIONS}   -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     message("Special flags for Clang:  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}  -stdlib=libc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
+    set(COMMON_OPTIONS ${COMMON_OPTIONS}  --gcc-toolchain=/usr/local/lib/gcc -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
 endif()
 
 
@@ -111,7 +112,7 @@ target_include_directories(PT PRIVATE ${MPI_INCLUDE_PATH})
 
 target_link_libraries(PT ${HDF5_LIBRARIES} ${HDF5_LDFLAGS} -ldl)
 target_link_libraries(PT ${MPI_LIBRARIES})
-target_link_libraries(PT -lc++experimental)                              ### For experimental::filesystem
+target_link_libraries(PT -lstdc++fs)                              ### For experimental::filesystem
 
 
 
