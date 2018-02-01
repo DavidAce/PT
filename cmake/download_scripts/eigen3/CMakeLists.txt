@@ -34,6 +34,7 @@ ExternalProject_Add(EIGEN3
         GIT_TAG master
         GIT_PROGRESS 1
         PREFIX "${INSTALL_DIRECTORY}/eigen3"
+        UPDATE_DISCONNECTED 1
         TEST_COMMAND ""
         CONFIGURE_COMMAND ""
         BUILD_COMMAND
