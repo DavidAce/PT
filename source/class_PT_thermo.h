@@ -4,8 +4,7 @@
 
 #ifndef PT_CLASS_PT_THERMO_H
 #define PT_CLASS_PT_THERMO_H
-#include "nmspc_PT_constants.h"
-#include "nmspc_random_numbers.h"
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 using namespace Eigen;

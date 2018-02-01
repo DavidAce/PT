@@ -22,11 +22,12 @@ then
     if [[ $ARG1 == *"valgrind"* ]]
     then
         echo "Running PT with option valgrind"
-        valgrind --tool=memcheck --leak-check=full -v mpirun -n 4 ./build/Debug/PT
+	mpirun --mca mpi_show_handle_leaks 1 -n 4 valgrind --tool=memcheck --leak-check=full ./build/Debug/PT
+        #valgrind --tool=memcheck --leak-check=full -v mpirun -n 4 --mca mpi_show_handle_leaks 1 ./build/Debug/PT
     elif [[ $ARG1 == *"gdb"* ]]
     then
         echo "Running PT with option gdb"
-        mpirun -n 12 xterm -e gdb ./build/Debug/PT
+        mpirun -n 4 xterm -e gdb ./build/Debug/PT
 
     elif [[ $ARG1 == *"ebug"* ]]
     then

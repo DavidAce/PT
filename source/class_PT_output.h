@@ -13,12 +13,12 @@
 #include <errno.h>
 #include <iostream>
 #include <iomanip>
-#include "nmspc_PT_constants.h"
+#include <sim_parameters/n_sim_settings.h>
+#include <fstream>
 
 
 using namespace std;
 using namespace Eigen;
-//namespace fs = std::experimental::filesystem;
 
 class output {
 private:
@@ -32,9 +32,9 @@ private:
 public:
     output(int id):world_ID(id){
         //Create folders
-        timeseries_folder       = PT_constants::output_path + "timeseries/";
-        groundstates_folder     = PT_constants::output_path + "groundstates/";
-        thermodynamics_folder   = PT_constants::output_path + "thermodynamics/";
+        timeseries_folder       = settings::hdf5::output_folder + "timeseries/";
+        groundstates_folder     = settings::hdf5::output_folder + "groundstates/";
+        thermodynamics_folder   = settings::hdf5::output_folder + "thermodynamics/";
         create_folder_master(timeseries_folder    , world_ID);
         create_folder_master(groundstates_folder  , world_ID);
         create_folder_master(thermodynamics_folder, world_ID);

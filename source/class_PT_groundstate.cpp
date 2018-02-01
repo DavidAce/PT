@@ -6,7 +6,7 @@
 #include "nmspc_PT_counters_timers.h"
 
 
-void class_PT_groundstate::check(int E, ArrayXXi &lattice) {
+void class_PT_groundstate::check(double E, ArrayXXi &lattice) {
     if (lattices_GS.empty()){
         E_GS = E;
         lattices_GS.push_back(lattice);

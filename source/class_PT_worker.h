@@ -2,8 +2,8 @@
 // Created by david on 2016-07-24.
 //
 
-#ifndef WL_CLASS_WL_WORKER_H
-#define WL_CLASS_WL_WORKER_H
+#ifndef CLASS_PT_WORKER_H
+#define CLASS_PT_WORKER_H
 #include <mpi.h>
 #include <random>
 #include <fstream>
@@ -13,14 +13,14 @@
 #include <Eigen/Dense>
 #include <set>
 #include <iterator>
-#include "class_model.h"
-#include "class_tic_toc.h"
-#include "class_PT_thermo.h"
+#include <models/class_model.h>
+#include <class_tic_toc.h>
+#include <class_PT_thermo.h>
 #include "class_PT_groundstate.h"
-#include "nmspc_PT_constants.h"
-#include "nmspc_PT_counters_timers.h"
-#include "nmspc_math_algorithms.h"
-#include "nmspc_random_numbers.h"
+#include <sim_parameters/n_sim_settings.h>
+#include <nmspc_PT_counters_timers.h>
+#include <nmspc_math_algorithms.h>
+#include <nmspc_random_numbers.h>
 
 using namespace Eigen;
 
@@ -35,45 +35,37 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
 }
 
 
-template <class model_type, typename observable_type>
 class class_worker {
-private:
-
 public:
-    class_worker(int &id, int &size);                 //Constructor
-    //Main data structures of the WL algorithm. Needed very often.
+    class_worker(int id, int size);                 //Constructor
+    //Main data structures of the PT algorithm. Needed very often.
 
     //MPI Communicator
     int world_ID;                   //Thread number
     int world_size;                 //Total number of threads
     //Temperature communication
-    int T_ID;
-    double T;
+    int     T_ID;
+    double  T;
     ArrayXd T_ladder;
     int world_ID_up, world_ID_dn;
     bool sampling;
 
-    //Model, including lattice and observables
-     model_type model;
+    //class_model, including lattice and observables
+//    std::unique_ptr<class_model_base> model;
+    class_model model;
+
     //Ground state
     class_PT_groundstate groundstate;
-
 
     //Thermodynamics
     class_thermo thermo;
 
     //PT Energy and Order parameter
-//    double E,M;                         //Current Energy and Order parameter
-//    double E_trial, M_trial;                 //Proposed
-//    Array<int ,   PT_constants::rate_sort, 1> T_history;
-//    Array<double, PT_constants::rate_sort ,1> E_history;
-//    Array<double, PT_constants::rate_sort ,1> M_history;
     vector<int >   T_history;
     vector<double> E_history;
     vector<double> M_history;
 
     //Katzgrabber
-//    int nup,ndn;    //Histograms
     vector <int> n_history;
     vector <int> t_history;
 
@@ -98,4 +90,4 @@ public:
 };
 
 
-#endif //WL_CLASS_WL_WORKER_H
+#endif //

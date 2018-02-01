@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/cmake/download_scripts/tmp/eigen3/CMakeFiles/EIGEN3"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/cmake/download_scripts/tmp/eigen3/CMakeFiles/EIGEN3.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/cmake/download_scripts/tmp/eigen3/CMakeFiles/EIGEN3-complete.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-install.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-mkdir.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-download.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-update.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-patch.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-configure.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-build.rule"
+		},
+		{
+			"file" : "/home/david/Dropbox/PhD/Programming/PT/libs/eigen3/src/EIGEN3-stamp/EIGEN3-test.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"EIGEN3"
+		],
+		"name" : "EIGEN3"
+	}
+}

@@ -1,63 +1,40 @@
 #include <iostream>
 #include <mpi.h>
-#include "source/PT.h"
-
+#include <gitversion.h>
+#include <IO/class_file_reader.h>
+#include <PT.h>
 
 int main(int argc, char **argv) {
-
 
     // Initialize the MPI environment
     MPI_Init(NULL, NULL);
     int world_ID,world_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_ID);           //Establish thread number of this worker
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);         //Get total number of threads
-    std::vector<std::string> args(argv, argv + argc);
-    std::string file_name;
-    std::string model_name;
-    if (argc == 1){
-        if (world_ID == 0){std::cout << "Running with default settings1" << endl;}
-    }else if(argc == 2){
-        if (world_ID == 0){std::cout << "Running with settings from file: " << args[1] << endl;}
-        file_name = args[1];
+
+    if(world_ID == 0) {
+        // Print current Git status
+        std::cout << "Git Branch: " + GIT::BRANCH +
+                     " | Commit hash: " + GIT::COMMIT_HASH +
+                     " | Revision: " + GIT::REVISION << std::endl << std::flush;
     }
-    else if(argc == 3){
-        if (world_ID == 0){std::cout << "Running model: " << args[1] << " with settings from file: " << args[2] << endl;}
-        model_name = args[1];
-        file_name = args[2];
-    }else{
-        if (world_ID == 0){std::cout
-                    << "Wrong syntax for excecution.\n" << endl
-                    << "Try" << endl
-                    << "    mpirun -n [nprocs] ./[output_path]/PT" << endl
-                    << "for default settings, or" << endl
-                    << "    mpirun -n [nprocs] ./[output_path]/PT [input_file_name]"
-                    << "or" << endl
-                    << "    mpirun -n [nprocs] ./[output_path]/PT [modelname] [input_file_name]"
-                    << endl;}
-    }
-
-    input in(model_name, file_name, world_ID);
-    PT_constants::copy_input(in);
-    enum Model_Type {Ising, J1J2};
-    enum Model_Scalar {int, double};
-    Model_Type model_type;
-    Model_Scalar model_scalar;
-
-    if (model_name == "ising"){
-        model_type  = Ising;
-        model_scalar= int;
-    }else if (model_name == "J1J2"){
-        model_type = J1J2;
-        model_scalar=double;
-    }else{
-        model_type = Ising;
-        model_scalar=int;
-    }
-
-
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << world_ID << ":  reading argc" << endl << flush;
+    //If input file is given as command line argument, then use that.
+    std::string inputfile = argc > 1 ? std::string(argv[0]) : std::string("input.cfg");
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << world_ID << ":  reading file" << endl << flush;
+    class_file_reader indata(inputfile);
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << world_ID << ":  initializing indata" << endl<< flush;
+    settings::initialize(indata);
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << world_ID << ":  initializing worker" << endl<< flush;
     class_worker worker(world_ID, world_size);
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << world_ID << ":  running paralleltempering" << endl<< flush;
+
     paralleltempering(worker);
     MPI_Finalize();
-
     return 0;
 }

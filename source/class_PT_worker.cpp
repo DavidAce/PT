@@ -31,11 +31,9 @@ int timer::move;
 int timer::sync;
 
 //Constructors
-class_worker::class_worker(int & id, int & size):
+class_worker::class_worker(int id, int size):
                                 world_ID(id),
                                 world_size(size),
-//                                model(PT_constants::L, PT_constants::J),
-//                                model(PT_constants::model_name, PT_constants::J1),
                                 t_total                (profiling_total,                3,"Total Time"),
                                 t_print                (profiling_print,                3,"Time"),
                                 t_sweep                (profiling_sweep,                3,"t_sweep"),
@@ -43,15 +41,27 @@ class_worker::class_worker(int & id, int & size):
                                 t_make_MC_trial        (profiling_make_MC_trial,        3,"t_mkMC") ,
                                 t_acceptance_criterion (profiling_acceptance_criterion, 3,"t_accr")
 {
-
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << id << ":  seeding" << endl<< flush;
     rn::rng.seed((unsigned long)world_ID);
-    auto factory = modelFactory();
-    model        = factory.create(PT_constants::model_name, PT_constants::L, PT_constants::J1, PT_constants::J2);
     sampling     = false;
     direction    = 0;
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << id << ":  starting counters" << endl<< flush;
     start_counters();
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << id << ":  initial temperatures" << endl<< flush;
     set_initial_temperatures();
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    cout << "ID " << id << ":  reserving history" << endl<< flush;
+//    T_history.reserve((ulong)settings::rate::sort);
+//    E_history.reserve((ulong)settings::rate::sort);
+//    M_history.reserve((ulong)settings::rate::sort);
+    MPI_Barrier(MPI_COMM_WORLD);
     cout << "ID: " << world_ID << " Started OK"<<endl;
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 
@@ -73,7 +83,7 @@ void class_worker::start_counters() {
 
 
 void class_worker::set_initial_temperatures(){
-    T_ladder  = ArrayXd::LinSpaced(world_size, PT_constants::T_min, PT_constants::T_max);
+    T_ladder  = ArrayXd::LinSpaced(world_size, settings::sim::T_min, settings::sim::T_max);
     T = T_ladder(world_ID);
     T_ID = world_ID;
     world_ID_up = math::mod(world_ID + 1, world_size);
@@ -83,14 +93,14 @@ void class_worker::set_initial_temperatures(){
 
 void class_worker::sweep(){
     t_sweep.tic();
-    for (int i = 0; i < PT_constants::N ; i++){
-        model->make_new_state();
+    for (int i = 0; i < settings::model::N ; i++){
+        model.make_new_state();
         counter::trials++;
-        if(rn::uniform_double_1() < fmin(1,exp(-(model->E_trial - model->E)/T))) {
+        if(rn::uniform_double_1() < fmin(1,exp(-(model.E_trial - model.E)/T))) {
             counter::accepts++;
-            model->accept_state();
+            model.accept_state();
             if (!sampling) {
-                groundstate.check(model->E, model->lattice);
+                groundstate.check(model.E, model.lattice);
             }
         }
     }
@@ -103,10 +113,10 @@ std::ostream &operator<<(std::ostream &os, const class_worker &worker) {
     os << setprecision(2);
     os << "ID: " << worker.world_ID
        << " Current State: "
-       << "     E = " << worker.model->E
-       << "     M = " << worker.model->M << endl
-       << "     E_trial = " << worker.model->E_trial
-       << "     M_trial = " << worker.model->M_trial
+       << "     E = " << worker.model.E
+       << "     M = " << worker.model.M << endl
+       << "     E_trial = " << worker.model.E_trial
+       << "     M_trial = " << worker.model.M_trial
        << endl;
     return os;
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J WL
+#SBATCH -J1 WL
 #SBATCH -t 0-06:00:00
 #SBATCH -N 6
 #SBATCH --exclusive

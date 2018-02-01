@@ -2,13 +2,18 @@
 // Created by david on 10/18/16.
 //
 
+
+
 #include "class_PT_thermo.h"
+#include <sim_parameters/n_sim_settings.h>
+#include <nmspc_random_numbers.h>
+
 
 void class_thermo::load_data(int temperature_ID, double temperature){
     T       = temperature;
     T_ID    = temperature_ID;
-    E       = read_file(PT_constants::output_path + "timeseries/E" + to_string(T_ID) + ".dat");
-    M       = read_file(PT_constants::output_path + "timeseries/M" + to_string(T_ID) + ".dat");
+//    E       = read_file(settings::hdf5::output_folder + "timeseries/E" + to_string(T_ID) + ".dat");
+//    M       = read_file(settings::hdf5::output_folder + "timeseries/M" + to_string(T_ID) + ".dat");
 }
 
 void class_thermo::compute_stats(){
@@ -30,11 +35,11 @@ void class_thermo::calc_thermo(){
     if(E.size() <= 1){cout << "Energy hasn't been loaded yet" << endl; return;}
     if(M.size() <= 1){cout << "Magnetization hasn't been loaded yet" << endl; return;}
     if(M.size() != E.size()){cout << "Data size mismatch" << endl; return;}
-    ArrayXd u_b(PT_constants::bootstraps);
-    ArrayXd m_b(PT_constants::bootstraps);
-    ArrayXd c_b(PT_constants::bootstraps);
-    ArrayXd x_b(PT_constants::bootstraps);
-//    ArrayXd s_b(PT_constants::bootstraps);
+    ArrayXd u_b(settings::bootstrap::reps);
+    ArrayXd m_b(settings::bootstrap::reps);
+    ArrayXd c_b(settings::bootstrap::reps);
+    ArrayXd x_b(settings::bootstrap::reps);
+//    ArrayXd s_b(settings::bootstraps);
 
     tau_E = autocorrelation(E);
 //    tau_M = autocorrelation(M);
@@ -54,7 +59,8 @@ void class_thermo::calc_thermo(){
     c = c_b.mean();
     x = x_b.mean();
 //    s = s_b.mean();
-    sigma_u_flyv = flyvbjerg(E)  /  PT_constants::N;
+//    int N = (int) pow(L, d);
+    sigma_u_flyv = flyvbjerg(E)  /  12;
     sigma_u = sqrt(variance(u_b));
     sigma_m = sqrt(variance(m_b));
     sigma_c = sqrt(variance(c_b));
@@ -66,7 +72,7 @@ void class_thermo::calc_thermo(){
 //    int n_independent   = (int)(E.size()) / block_length;
 //    ArrayXd E_bootstrap (E.size());
 //    ArrayXd M_bootstrap (M.size());
-//    for (int i = 0; i < PT_constants::bootstraps ; i++ ){
+//    for (int i = 0; i < settings::bootstraps ; i++ ){
 //        E_bootstrap = rn::random_with_replacement(E, n_independent);
 //        M_bootstrap = rn::random_with_replacement(M, n_independent);
 //        u_b(i) = internal_energy(E_bootstrap);
@@ -105,7 +111,7 @@ ArrayXd class_thermo::bootstrap_non_overlap_block(const ArrayXd &in, string func
     int num_blocks = (int)(in.size()) / block_length;
     vector<double> boot_avg;
 
-    for (int bt = 0; bt < PT_constants::bootstraps; bt++){
+    for (int bt = 0; bt < settings::bootstrap::reps; bt++){
         vector<double> boot;
         while(boot.size() < in.size()){
             int block = rn::uniform_integer(0, num_blocks);
@@ -125,7 +131,7 @@ ArrayXd class_thermo::bootstrap_non_overlap_block(const ArrayXd &in, string func
 
 ArrayXd class_thermo::bootstrap_overlap_block(const ArrayXd &in, string func, int block_length){
     vector<double> boot_avg;
-    for (int bt = 0; bt < PT_constants::bootstraps; bt++){
+    for (int bt = 0; bt < settings::bootstrap::reps; bt++){
         vector<double> boot;
         while (boot.size() < in.size()){
             int start = rn::uniform_integer(0, (int)in.size());
@@ -147,23 +153,23 @@ double class_thermo::autocorrelation(const ArrayXd &A){
 }
 
 double class_thermo::internal_energy(const ArrayXd &E){
-    return E.mean() / PT_constants::N;
+    return E.mean() / settings::model::N;
 }
 
 double class_thermo::magnetization(const ArrayXd &M){
-    return M.cwiseAbs().mean() / PT_constants::N;
+    return M.cwiseAbs().mean() / settings::model::N;
 }
 
 double class_thermo::specific_heat  (const ArrayXd &E){
-    return variance(E)/T/T/PT_constants::N;
+    return variance(E)/T/T/settings::model::N;
 }
 
 double class_thermo::susceptibility  (const ArrayXd &M){
-    return variance(M.cwiseAbs())/T/PT_constants::N;
+    return variance(M.cwiseAbs())/T/settings::model::N;
 }
 
 double class_thermo::entropy  (const ArrayXd &E){
-    return variance(M.cwiseAbs())/T/PT_constants::N;
+    return variance(M.cwiseAbs())/T/settings::model::N;
 }
 
 
@@ -268,20 +274,20 @@ ArrayXXd class_thermo::read_file(string filename) {
 //
 //void class_thermo::internal_energy(){
 //    if(E.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-//    u       = E.mean() / PT_constants::N;
+//    u       = E.mean() / settings::model::N;
 //}
 //
 //void class_thermo::magnetization(){
 //    if(M.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-//    m       = M.cwiseAbs().mean() / PT_constants::N;
+//    m       = M.cwiseAbs().mean() / settings::model::N;
 //}
 //
 //void class_thermo::specific_heat  (){
 //    if(E.size() == 0){cout << "Energy hasn't been loaded yet" << endl; exit(1);}
-//    c       = variance(E)/T/T/PT_constants::N;
+//    c       = variance(E)/T/T/settings::model::N;
 //}
 //
 //void class_thermo::susceptibility  (){
 //    if(M.size() == 0){cout << "Magnetization hasn't been loaded yet" << endl; exit(1);}
-//    x    = variance(M.cwiseAbs())/T/PT_constants::N;
+//    x    = variance(M.cwiseAbs())/T/settings::model::N;
 //}

@@ -16,9 +16,9 @@ private:
 
 public:
     class_PT_groundstate(){};
-    int           E_GS;
+    double           E_GS;
     vector<ArrayXXi> lattices_GS;
-    void check(int E, ArrayXXi &lattice);
+    void check(double E, ArrayXXi &lattice);
     void sync();
 
 };

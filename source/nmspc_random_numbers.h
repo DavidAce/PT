@@ -8,19 +8,13 @@
 #include <iostream>
 #include <Eigen/Core>
 #include "nmspc_math_algorithms.h"
-#include "nmspc_PT_constants.h"
 using namespace std;
 using namespace Eigen;
-using namespace PT_constants;
 namespace rn{
     //typedef std::mt19937 RNGType;
     //RNGType rng;
     //Random functions
     extern std::mt19937 rng;
-    inline int __attribute__((hot)) uniform_integer_L(){
-        std::uniform_int_distribution<>  rand_int(0, L-1);
-        return rand_int(rng);
-    }
 
     inline int __attribute__((hot)) uniform_integer_1(){
         std::uniform_int_distribution<>  rand_int(0, 1);

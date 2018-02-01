@@ -14,23 +14,23 @@ void paralleltempering(class_worker &worker) {
     output out(worker.world_ID);
     worker.t_total.tic();
     worker.t_print.tic();
-
     warmup(worker,out);
     sample(worker,out);
+    debug_print(worker, "Sorting \n");
     parallel::sort(worker, out, true);
+    debug_print(worker, "Saving \n");
     parallel::save(worker, out);
-
-    print_status(worker, true);
+    debug_print(worker, "Finished Saving \n");
 }
 
 
 void warmup(class_worker &worker, output &out){
-    while (counter::MCS < PT_constants::MCS_warmup) {
+    while (counter::MCS < settings::sim::MCS_warmup) {
         worker.sweep();
-        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
-        if (timer::move >= PT_constants::rate_move) { parallel::katz(worker); }
-        if (timer::sync >= PT_constants::rate_sync) { worker.groundstate.sync(); }
-        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
+        if (timer::swap >= settings::rate::swap) { parallel::swap(worker); }
+        if (timer::move >= settings::rate::move) { parallel::katz(worker); }
+        if (timer::sync >= settings::rate::sync) { worker.groundstate.sync(); }
+        if (timer::cout >= settings::rate::cout) { print_status(worker,false); }
         counter::MCS++;
         timer::swap++;
         timer::cout++;
@@ -48,12 +48,12 @@ void warmup(class_worker &worker, output &out){
 
 void sample(class_worker &worker, output &out){
     worker.sampling = true;
-    while (counter::MCS < PT_constants::MCS_sample) {
+    while (counter::MCS < settings::sim::MCS_sample) {
         worker.sweep();
-        if (timer::prob >= PT_constants::rate_prob) { probe(worker); }
-        if (timer::sort >= PT_constants::rate_sort) { parallel::sort(worker, out, false); }
-        if (timer::swap >= PT_constants::rate_swap) { parallel::swap(worker); }
-        if (timer::cout >= PT_constants::rate_cout) { print_status(worker,false); }
+        if (timer::prob >= settings::rate::prob) { probe(worker); }
+        if (timer::sort >= settings::rate::sort) { parallel::sort(worker, out, false); }
+        if (timer::swap >= settings::rate::swap) { parallel::swap(worker); }
+        if (timer::cout >= settings::rate::cout) { print_status(worker,false); }
         counter::MCS++;
         timer::prob++;
         timer::sort++;
@@ -67,18 +67,18 @@ void sample(class_worker &worker, output &out){
 
 void probe(class_worker &worker){
     timer::prob = 0;
-    worker.T_history.emplace_back(worker.T_ID);
-    worker.E_history.emplace_back(worker.model);
-    worker.M_history.emplace_back(worker.model->);
+    worker.T_history.push_back(worker.T_ID);
+    worker.E_history.push_back(worker.model.E);
+    worker.M_history.push_back(worker.model.M);
 
 }
 
 void print_status(class_worker &worker,bool override) {
-    if (timer::cout >= PT_constants::rate_cout || override){
+    if (timer::cout >= settings::rate::cout || override){
         timer::cout = 0;
         worker.t_total.toc();
         worker.t_print.toc();
-        if (timer::calc >= PT_constants::rate_comp) { parallel::calc(worker, false); }else{worker.thermo.reset();}
+        if (timer::calc >= settings::rate::comp) { parallel::calc(worker, false); }else{worker.thermo.reset();}
         for (int i = 0; i < worker.world_size; i++){
             if(worker.T_ID == i){
                 if (worker.T_ID == 0){cout << endl;}
@@ -110,10 +110,10 @@ void print_status(class_worker &worker,bool override) {
                     cout << " tau: " << left << setw(8) << setprecision(4) << worker.thermo.tau_E ;
                 }
                 if(debug_status){
-                    cout << " E: "        << left << setw(9) << setprecision(2)   << worker.model->E
-                         << " M: "        << left << setw(9) << setprecision(2)   << worker.model->M;
-                    cout << " E_tr: "     << left << setw(9) << setprecision(2)   << worker.model->E_trial
-                         << " M_tr: "     << left << setw(9) << setprecision(2)   << worker.model->M_trial;
+                    cout << " E: "        << left << setw(9) << setprecision(2)   << worker.model.E
+                         << " M: "        << left << setw(9) << setprecision(2)   << worker.model.M;
+                    cout << " E_tr: "     << left << setw(9) << setprecision(2)   << worker.model.E_trial
+                         << " M_tr: "     << left << setw(9) << setprecision(2)   << worker.model.M_trial;
                 }
                 cout << " Sw: "    << left << setw(5) << counter::swap_accepts
                      << " MCS: "   << left << setw(10) << counter::MCS;

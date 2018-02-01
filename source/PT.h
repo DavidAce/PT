@@ -9,10 +9,11 @@
 #include <chrono>
 #include <ratio>
 #include <numeric>
-#include "class_PT_worker.h"
-#include "class_PT_output.h"
-#include "nmspc_PT_constants.h"
-#include "nmspc_PT_parallel_algorithms.h"
+#include <class_PT_worker.h>
+#include <class_PT_output.h>
+#include <nmspc_PT_parallel_algorithms.h>
+#include <sim_parameters/n_sim_settings.h>
+
 void paralleltempering  (class_worker &worker);
 void warmup             (class_worker &worker, output &out);
 void sample             (class_worker &worker, output &out);

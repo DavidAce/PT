@@ -1,5 +1,7 @@
 /build
 /output
-/cmake-build-release
-/cmake-build-debug
-
+/cmake-*
+/.idea
+/.vscode
+/libs
+/backup
