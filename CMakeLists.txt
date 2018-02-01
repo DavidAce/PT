@@ -21,9 +21,11 @@ message("Compiling with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
 ###  Find or install all dependencies   ###
 ###########################################
 find_package(MPI REQUIRED)
+set(MPI_CXX_COMPILE_OPTIONS "-cxx=/usr/local/opt/llvm/bin/clang++")
 message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
+
 get_cmake_property(_variableNames VARIABLES)
 foreach (_variableName ${_variableNames})
     message(STATUS "${_variableName}=${${_variableName}}")
