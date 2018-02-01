@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(PT)
-set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/get_libraries.cmake)
 
