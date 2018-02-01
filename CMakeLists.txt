@@ -26,11 +26,6 @@ message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
 
-get_cmake_property(_variableNames VARIABLES)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
 
 # add this line only when you are using openmpi which has a different c++ bindings
 #add_definitions(-DOMPI_SKIP_MPICXX)
