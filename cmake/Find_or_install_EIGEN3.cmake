@@ -25,8 +25,8 @@ else()
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/download_scripts)
     execute_process(
             COMMAND ${CMAKE_COMMAND}
-                -DINSTALL_DIRECTORY:PATH=${PROJECT_SOURCE_DIR}/libs
-                -G ${CMAKE_GENERATOR} ../../eigen3
+            -DINSTALL_DIRECTORY:PATH=${PROJECT_SOURCE_DIR}/libs
+            -G ${CMAKE_GENERATOR} ../../eigen3
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/cmake/download_scripts/tmp/eigen3)
     execute_process(
             OUTPUT_QUIET
@@ -38,9 +38,14 @@ else()
         message(FATAL_ERROR "Eigen3 not found and failed to install: ${res_var}")
     endif()
     include(${PROJECT_SOURCE_DIR}/libs/eigen3/FindEigen3.cmake)
+    find_package(Eigen3 3.3 PATHS "${EIGEN3_CMAKE_DIR}"  NO_MODULE REQUIRED)
     include_directories(${EIGEN3_INCLUDE_DIR})
     message("SUCCESSFULLY INSTALLED EIGEN3:   ${EIGEN3_INCLUDE_DIR}")
     message("BUILD LOG SAVED TO:   ${PROJECT_SOURCE_DIR}/cmake/download_scripts/tmp/eigen3/log_build.txt")
 endif()
 
 
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()

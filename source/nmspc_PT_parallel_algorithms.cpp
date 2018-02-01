@@ -171,8 +171,8 @@ namespace parallel {
         if (worker.sampling || force){
             //Reorder E
             for (int i = 0; i < worker.E_history.size(); i++){
-//                cout << "E_history[" << i << "]: " << worker.E_history[i] << "  T_history[" << i << "]: " << worker.T_history[i] << endl;
-//                MPI_Sendrecv_replace(&worker.E_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                cout << "E_history[" << i << "]: " << worker.E_history[i] << "  T_history[" << i << "]: " << worker.T_history[i] << endl;
+                MPI_Sendrecv_replace(&worker.E_history[i], 1, MPI_DOUBLE, worker.T_history[i],i, MPI_ANY_SOURCE,i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
             MPI_Barrier(MPI_COMM_WORLD);
             //Reorder M

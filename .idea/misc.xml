@@ -20,6 +20,7 @@
       <file path="$PROJECT_DIR$/cmake-build-release" />
       <file path="$PROJECT_DIR$/cmake-build-release/CMakeFiles" />
       <file path="$PROJECT_DIR$/input" />
+      <file path="$PROJECT_DIR$/libs" />
       <file path="$PROJECT_DIR$/output" />
     </excludeRoots>
   </component>
