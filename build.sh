@@ -33,6 +33,7 @@ mkdir ${buildtype}
 cd ${buildtype}
 export CC=gcc-7
 export CXX=g++-7
+
 echo "Starting Build"
-cmake -DCMAKE_BUILD_TYPE=${buildtype}  ../../
+cmake DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_BUILD_TYPE=${buildtype}  ../../
 make
