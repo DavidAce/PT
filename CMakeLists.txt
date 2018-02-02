@@ -25,7 +25,7 @@ find_package(MPI REQUIRED)
 # MAKE SURE "g++" and "c++" environment variables points to the same compiler, i.e. clang or gnu.
 add_definitions(-DOMPI_SKIP_MPICXX)
 
-#set(MPI_CXX_COMPILE_OPTIONS "-cxx=g++-7")
+set(MPI_CXX_COMPILE_OPTIONS "-cxx=g++-7")
 message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
@@ -63,18 +63,18 @@ if ("${this_host}" MATCHES "triolith")
     set(COMMON_OPTIONS ${COMMON_OPTIONS} -ip -xavx -cxxlib=/software/apps/gcc/5.3.0/build01/ -gxx-name=g++)
 else()
     message("Host: ${this_host}")
-    set(CMAKE_CXX_COMPILER mpicxx)
-    set(CMAKE_)
+#    set(CMAKE_CXX_COMPILER mpicxx)
+#    set(CMAKE_)
 endif()
 
 
 
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" )
-    message("Special flags for g++:  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}   -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context)
+    message("Special flags for g++:  -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context")
+    set(COMMON_OPTIONS ${COMMON_OPTIONS}  -stdlib=libstdc++  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    message("Special flags for Clang:  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}  --gcc-toolchain=/usr/local/lib/gcc/7 -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
+    message("Special flags for Clang:  -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual")
+    set(COMMON_OPTIONS ${COMMON_OPTIONS}   -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
 endif()
 
 
