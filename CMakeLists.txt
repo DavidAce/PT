@@ -21,15 +21,16 @@ message("Compiling with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
 ###  Find or install all dependencies   ###
 ###########################################
 find_package(MPI REQUIRED)
-set(MPI_CXX_COMPILE_OPTIONS "-cxx=g++-7")
+# add this line only when you are using openmpi which has a different c++ bindings
+# MAKE SURE "g++" and "c++" environment variables points to the same compiler, i.e. clang or gnu.
+add_definitions(-DOMPI_SKIP_MPICXX)
+
+#set(MPI_CXX_COMPILE_OPTIONS "-cxx=g++-7")
 message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
 
 
-# add this line only when you are using openmpi which has a different c++ bindings
-#add_definitions(-DOMPI_SKIP_MPICXX)
-# MAKE SURE "g++" and "c++" environment variables points to the same compiler, i.e. clang or gnu.
 
 
 #include_directories(${MPI_INCLUDE_PATH})
