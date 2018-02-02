@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
     fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "OS: Mac OSX"
-    bash_scripts/mode/run_linux.sh ${option}
+    bash_scripts/mode/run_macosx.sh ${option}
 else
         echo "Could not identify OS"
 fi
