@@ -38,7 +38,7 @@ else()
         message(FATAL_ERROR "Eigen3 not found and failed to install: ${res_var}")
     endif()
     include(${PROJECT_SOURCE_DIR}/libs/eigen3/FindEigen3.cmake)
-    find_package(Eigen3 3.3 PATHS "${EIGEN3_CMAKE_DIR}"  NO_MODULE REQUIRED)
+    find_package(Eigen3 3.3 PATHS "${EIGEN3_CMAKE_DIR}" NO_DEFAULT_PATH NO_MODULE REQUIRED)
 
     get_cmake_property(_variableNames VARIABLES)
     foreach (_variableName ${_variableNames})
