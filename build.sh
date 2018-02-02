@@ -28,6 +28,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
     fi
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     echo "OS: Mac OSX"
+    echo "Checking that GCC is installed in homebrew: [brew ls gcc | grep -q 'g++-7']"
     if brew ls gcc | grep -q 'g++-7'; then
         echo "GCC-7 is installed"
         export CC=gcc-7
