@@ -22,23 +22,23 @@ then
     if [[ $ARG1 == *"valgrind"* ]]
     then
         echo "Running PT with option valgrind"
-	mpirun --mca mpi_show_handle_leaks 1 -n 4 valgrind --tool=memcheck --leak-check=full ./build/Debug/PT
+	mpirun --mca mpi_show_handle_leaks 1 -n 4  --oversubscribe valgrind --tool=memcheck --leak-check=full ./build/Debug/PT
         #valgrind --tool=memcheck --leak-check=full -v mpirun -n 4 --mca mpi_show_handle_leaks 1 ./build/Debug/PT
     elif [[ $ARG1 == *"gdb"* ]]
     then
         echo "Running PT with option gdb"
-        mpirun -n 4 xterm -e gdb ./build/Debug/PT
+        mpirun -n 4 --oversubscribe xterm -e gdb ./build/Debug/PT
 
     elif [[ $ARG1 == *"ebug"* ]]
     then
         ulimit -c unlimited
         echo "Running PT in Debug-mode"
-        mpirun -n 12 ./build/Debug/PT
+        mpirun -n 12  --oversubscribe ./build/Debug/PT
     elif [[ $ARG1 == *"elease"* ]]
     then
         echo "Running PT in Release-mode"
         ulimit -c unlimited
-        mpirun -n 12  ./build/Release/PT
+        mpirun -n 12  --oversubscribe ./build/Release/PT
     elif [[ $ARG1 == *"atch" ]]
     then
         echo "Use syntax: ./run.sh batch [jobname]"
@@ -53,7 +53,7 @@ then
         ulimit -c unlimited
         for filename in input/$ARG2/*.dat; do
             echo "Executing file: $filename"
-            mpirun -n 12  ./build/Release/PT $ARG2 "$filename"
+            mpirun -n 12  --oversubscribe  ./build/Release/PT $ARG2 "$filename"
         done
     else
         echo "Use syntax: ./run.sh batch [jobname]"
