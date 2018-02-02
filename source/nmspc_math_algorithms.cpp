@@ -2,8 +2,7 @@
 // Created by david on 2016-08-05.
 //
 
-#include "nmspc_math_algorithms.h"
-#include "../backup/nmspc_PT_constants.h"
+#include <nmspc_math_algorithms.h>
 
 
 namespace math {
