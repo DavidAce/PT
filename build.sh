@@ -31,6 +31,8 @@ mkdir build
 cd build
 mkdir ${buildtype}
 cd ${buildtype}
+export CC=gcc-7
+export CXX=g++-7
 echo "Starting Build"
 cmake -DCMAKE_BUILD_TYPE=${buildtype}  ../../
 make
