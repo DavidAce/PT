@@ -26,7 +26,7 @@ then
 else
     echo "We're on my pc!"
 fi
-
+rm -rf build
 mkdir build
 cd build
 mkdir ${buildtype}
