@@ -3,6 +3,7 @@
 //
 
 #include <IO/class_hdf5_thermo_table.h>
+#include <IO/class_hdf5_file.h>
 
 
 class_hdf5_thermo_table::class_hdf5_thermo_table(std::shared_ptr<class_hdf5_file> hdf5_out_,
@@ -16,9 +17,7 @@ class_hdf5_thermo_table::class_hdf5_thermo_table(std::shared_ptr<class_hdf5_file
         mpi_on(mpi_on_)
 {
     table_path = group_name + "/" + table_name;
-//    this->reserve(max_elements);
     if(mpi_on){
-        std::cout << "Initializing table "<< std::endl;
         initialize_table_mpi();
 
     }else{

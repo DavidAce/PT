@@ -26,7 +26,6 @@ matrix:
           packages:
             - g++-7
             - gfortran
-            - openmpi
             - openmpi-bin
             - libopenmpi-dev
 
@@ -53,7 +52,6 @@ matrix:
             - libc++-dev
             - libc++abi-dev
             - gfortran
-            - openmpi
             - openmpi-bin
             - libopenmpi-dev
 

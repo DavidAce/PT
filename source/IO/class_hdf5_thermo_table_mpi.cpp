@@ -3,7 +3,7 @@
 //
 
 #include <IO/class_hdf5_thermo_table.h>
-
+#include <IO/class_hdf5_file.h>
 #include <mpi.h>
 void class_hdf5_thermo_table::initialize_table_mpi(){
     if (this->empty() and !table_is_ready) {

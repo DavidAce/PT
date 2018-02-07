@@ -7,8 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <IO/class_hdf5_file.h>
-
+#include <hdf5_hl.h>
 
 class class_hdf5_file;
 
