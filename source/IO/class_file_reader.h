@@ -33,7 +33,7 @@ private:
     class_custom_cout ccout;
 public:
     class_file_reader() = default;
-    explicit class_file_reader(const fs::path &file_path_, std::string mode): ccout(mode), file_path(file_path_) {
+    explicit class_file_reader(const fs::path &file_path_, std::string mode):file_path(file_path_) , ccout(mode){
         try {
             file.open(find_input_file(file_path).c_str());
         }

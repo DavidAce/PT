@@ -9,8 +9,8 @@ namespace settings{
 
     double sim::T_min                      = 0.1 ;                      /*!< Minimum temperature of the simulation */
     double sim::T_max                      = 6   ;                      /*!< Maximum temperature of the simulation */
-    int    sim::MCS_warmup                 = 10000 ;                    /*! Number of warmup Monte Carlo Sweeps (MCS) */
-    int    sim::MCS_sample                 = 20000 ;                     /*! Number of sampling Monte Carlo Sweeps (MCS) */
+    int    sim::MCS_warmup                 = 20000 ;                    /*! Number of warmup Monte Carlo Sweeps (MCS) */
+    int    sim::MCS_sample                 = 60000 ;                     /*! Number of sampling Monte Carlo Sweeps (MCS) */
     string sim::job_name                   = "";                        /*!< Name or identifier for the current job   */
 
     bool   model::on                       = true;                      /*!< Turns Ising simulation on/off. */
@@ -26,11 +26,11 @@ namespace settings{
 //    double model_j1j2::J2                 = 1   ;                      /*!< Next Nearest neighbor coupling */
 
     //Rates for checking, sample, storing and printing (MCS units)
-    int rate::prob                        = 1;                         /*!< How often to sample */
-    int rate::sort                        = 10000;                     /*!< How often to sort all samplings and write timeseries data to file */
-    int rate::comp                        = 50000;                     /*!< How often to compute statistics for printing mid-simulation */
-    int rate::swap                        = 40;                        /*!< How often to swap walkers in adjacent windows */
-    int rate::cout                        = 10000;                     /*!< How often to cout in terminal */
+    int rate::samp                        = 1;                         /*!< How often to sample */
+    int rate::save                        = 1000;                      /*!< How often to save all samplings and write timeseries to file */
+    int rate::comp                        = 10000;                     /*!< How often to compute full statistics from entire sampling period */
+    int rate::swap                        = 50;                        /*!< How often to swap walkers in adjacent windows */
+    int rate::cout                        = 1000;                      /*!< How often to cout in terminal */
     int rate::move                        = 5000;                      /*!< How often to move temperatures during warmup */
     int rate::sync                        = 100;                       /*!< How often to sync groundstates during warmup (to find the lowest energy states) */
 
@@ -77,8 +77,8 @@ void settings::initialize(class_file_reader &indata){
 
 
     //Rates for checking, sample, storing and printing (MCS units)
-    rate::prob                      = indata.find_parameter<int> ("rate::prob",rate::prob);
-    rate::sort                      = indata.find_parameter<int> ("rate::sort",rate::sort);
+    rate::samp                      = indata.find_parameter<int> ("rate::samp",rate::samp);
+    rate::save                      = indata.find_parameter<int> ("rate::save",rate::save);
     rate::comp                      = indata.find_parameter<int> ("rate::comp",rate::comp);
     rate::swap                      = indata.find_parameter<int> ("rate::swap",rate::swap);
     rate::cout                      = indata.find_parameter<int> ("rate::cout",rate::cout);

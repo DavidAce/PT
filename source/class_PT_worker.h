@@ -47,6 +47,7 @@ public:
     int     T_ID;
     double  T;
     ArrayXd T_ladder;
+    vector<int> T_ID_list;
     int world_ID_up, world_ID_dn;
     bool sampling;
 
@@ -61,13 +62,12 @@ public:
     class_thermo thermo;
 
     //PT Energy and Order parameter
-    vector<int >   T_history;
+//    vector<int >   T_history;
     vector<double> E_history;
     vector<double> M_history;
 
     //Katzgrabber
     vector <int> n_history;
-    vector <int> t_history;
 
     int direction;  // 1 for up, -1 for down, 0 if not applicable
 

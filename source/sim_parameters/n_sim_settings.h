@@ -45,9 +45,9 @@ namespace settings {
 
     namespace rate {
         //Rates for checking, sample, storing and printing (MCS units)
-        extern int prob;                                    /*!< How often to sample */
-        extern int sort;                                    /*!< How often to sort all samplings and write timeseries data to file */
-        extern int comp;                                    /*!< How often to compute statistics for printing mid-simulation */
+        extern int samp;                                    /*!< How often to sample */
+        extern int save;                                    /*!< How often to save all samplings and write timeseries to file */
+        extern int comp;                                    /*!< How often to compute full statistics from entire sampling period */
         extern int swap;                                    /*!< How often to swap walkers in adjacent windows */
         extern int cout;                                    /*!< How often to cout in terminal */
         extern int move;                                    /*!< How often to move temperatures during warmup */

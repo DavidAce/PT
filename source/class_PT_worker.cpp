@@ -22,9 +22,9 @@ int counter::samples;
 int counter::swap_trials;
 int counter::swap_accepts;
 int counter::store;
-int timer::prob;
-int timer::sort;
-int timer::calc;
+int timer::samp;
+int timer::save;
+int timer::comp;
 int timer::cout;
 int timer::swap;
 int timer::move;
@@ -56,12 +56,15 @@ class_worker::class_worker(int id, int size):
 
     MPI_Barrier(MPI_COMM_WORLD);
     cout << "ID " << id << ":  reserving history" << endl<< flush;
-//    T_history.reserve((ulong)settings::rate::sort);
-//    E_history.reserve((ulong)settings::rate::sort);
-//    M_history.reserve((ulong)settings::rate::sort);
+//    T_history.reserve((ulong)settings::rate::save_buffers);
+//    E_history.reserve((ulong)settings::rate::save_buffers);
+//    M_history.reserve((ulong)settings::rate::save_buffers);
     MPI_Barrier(MPI_COMM_WORLD);
     cout << "ID: " << world_ID << " Started OK"<<endl;
     MPI_Barrier(MPI_COMM_WORLD);
+    T_ID_list.resize((ulong) world_size);
+    MPI_Allgather(&T_ID,1,MPI_INT,T_ID_list.data(),1, MPI_INT, MPI_COMM_WORLD);
+
 }
 
 
@@ -75,7 +78,7 @@ void class_worker::start_counters() {
     counter::swap_accepts       = 0;
     counter::store              = 0;
     timer::cout                 = 0;
-    timer::calc                 = 0;
+    timer::comp                 = 0;
     timer::swap 				= 0;
     timer::move 				= 0;
     timer::sync 				= 0;

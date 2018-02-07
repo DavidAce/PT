@@ -13,7 +13,7 @@ enum class Meta_data  {chi, chi_max, chain_length, iteration, phys_time, wall_ti
 
 class class_measurement_buffers{
 private:
-    class_hdf5 *hdf5_out = nullptr; //Pointer is not owned! do not delete
+    class_hdf5_file *hdf5_out = nullptr; //Pointer is not owned! do not delete
     bool data_has_been_written_to_file = false;
 public:
     class_hdf5_dataset_buffer<long>   chi;
@@ -41,7 +41,7 @@ public:
     {}
 
 
-    class_measurement_buffers(class_hdf5 * hdf5_out_ ,
+    class_measurement_buffers(class_hdf5_file * hdf5_out_ ,
                             const std::string &group_name,
                             const int iteration):
     class_measurement_buffers(hdf5_out_, group_name, iteration, 0, "default_attribute")
@@ -56,7 +56,7 @@ public:
     {}
 
     template<typename IterType, typename AttrType>
-    class_measurement_buffers(class_hdf5 * hdf5_out_ ,
+    class_measurement_buffers(class_hdf5_file * hdf5_out_ ,
                               const std::string &group_name,
                               const IterType iteration,
                               const AttrType &attribute,
@@ -100,7 +100,7 @@ public:
     }
 
 
-    void set(class_hdf5 * hdf5_out_ ,
+    void set(class_hdf5_file * hdf5_out_ ,
              const std::string &group_name,
              const int iteration){
         *this = class_measurement_buffers(hdf5_out_, group_name, iteration);
@@ -112,7 +112,7 @@ public:
     }
 
     template<typename AttrType>
-    void set(class_hdf5 *hdf5_out_,
+    void set(class_hdf5_file *hdf5_out_,
              const std::string &group_name,
              const int &iteration,
              const AttrType &attribute,
@@ -172,7 +172,7 @@ public:
 //        wall_time.push_back(wall_time_);
 //    }
 
-    void write_data(class_hdf5 & hdf5_out){
+    void write_data(class_hdf5_file & hdf5_out){
         chi      .write_buffer_to_file(hdf5_out);
         chi_max  .write_buffer_to_file(hdf5_out);
         energy   .write_buffer_to_file(hdf5_out);

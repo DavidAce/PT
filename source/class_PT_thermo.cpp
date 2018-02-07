@@ -9,25 +9,23 @@
 #include <nmspc_random_numbers.h>
 
 
-void class_thermo::load_data(int temperature_ID, double temperature){
+void class_thermo::load_data(std::vector<double>&E_timeseries, std::vector<double>&M_timeseries, double temperature){
     T       = temperature;
-    T_ID    = temperature_ID;
-//    E       = read_file(settings::hdf5::output_folder + "timeseries/E" + to_string(T_ID) + ".dat");
-//    M       = read_file(settings::hdf5::output_folder + "timeseries/M" + to_string(T_ID) + ".dat");
+    E = Eigen::Map<ArrayXd>(E_timeseries.data(),E_timeseries.size());
+    M = Eigen::Map<ArrayXd>(M_timeseries.data(),M_timeseries.size());
+}
+void class_thermo::load_data(ArrayXd &E_timeseries, ArrayXd &M_timeseries, double temperature){
+    T       = temperature;
+    E = Eigen::Map<ArrayXd>(E_timeseries.data(),E_timeseries.size());
+    M = Eigen::Map<ArrayXd>(M_timeseries.data(),M_timeseries.size());
 }
 
 void class_thermo::compute_stats(){
-    E_mean      = E.mean();
-    E_sq_mean   = E.cwiseAbs2().mean();
-
-    M_mean      = M.cwiseAbs().mean();
-    M_sq_mean   = M.cwiseAbs2().mean();
-
-    E_var       = E_sq_mean - E_mean*E_mean;
-    E_std       = sqrt(E_var);
-
-    M_var       = M_sq_mean - M_mean*M_mean;
-    M_std       = sqrt(M_var);
+    u = internal_energy(E);
+    m = magnetization(M);
+    c = specific_heat(E);
+    x = susceptibility(M);
+    tau_E = autocorrelation(E);
 
 }
 
@@ -42,9 +40,7 @@ void class_thermo::calc_thermo(){
 //    ArrayXd s_b(settings::bootstraps);
 
     tau_E = autocorrelation(E);
-//    tau_M = autocorrelation(M);
-    tau_E = isnan(tau_E) || tau_E < 1 ? 1 : tau_E;
-//    tau_M = isnan(tau_M) || tau_M < 1 ? 1 : tau_M;
+
 
     int block_length    = (int) ceil(20*tau_E);
 //    int n_independent   = (int)(E.size()) / block_length;
@@ -149,7 +145,9 @@ ArrayXd class_thermo::bootstrap_overlap_block(const ArrayXd &in, string func, in
 }
 
 double class_thermo::autocorrelation(const ArrayXd &A){
-    return 0.5*pow(flyvbjerg(A),2) / (variance(A)/((int)A.size()-1));
+    double tau = 0.5*pow(flyvbjerg(A),2) / (variance(A)/((int)A.size()-1));
+    tau = isnan(tau) || tau < 1 ? 1 : tau;
+    return tau;
 }
 
 double class_thermo::internal_energy(const ArrayXd &E){
@@ -212,46 +210,6 @@ void class_thermo::reset(){
 
     sigma_u_flyv = 0;
     tau_E = 0; //tau_M = 0;
-}
-
-ArrayXXd class_thermo::read_file(string filename) {
-    ifstream infile;
-    vector<string> lines;
-    string line;
-    string number;
-    infile.open(filename);
-
-    if (!infile.is_open()) {
-        cout << "Can't open: " << filename << endl;
-        return ArrayXXd::Zero(1,1);
-//        MPI_Finalize();
-//        exit(5);
-    }
-    unsigned long int rows = 0, cols = 0;
-    //Load all the lines first and count rows.
-    while (getline(infile,line)) {
-        lines.push_back(line);
-        rows++;
-    }
-    //Now count the number of elements on the  first line
-    stringstream stream(lines[0]);
-    while (!stream.eof()) {
-        stream >> number;
-        cols++;
-    }
-    //Now make your matrix and fill it with the contents of line[].
-    ArrayXXd result(rows, cols);
-    int j;
-    for (unsigned long int i = 0; i < rows; i++) {
-        stringstream new_stream;
-        new_stream << lines[i];
-        j = 0;
-        while (!new_stream.eof()) {
-            new_stream >> number;
-            result(i, j++) = std::stod(number);
-        }
-    }
-    return result;
 }
 
 

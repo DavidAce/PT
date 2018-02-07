@@ -22,7 +22,6 @@ private:
 public:
     class_thermo() {};
     double T;
-    int    T_ID;
 
     double u, sigma_u;// sigma_u_tau, sigma_u_tau2;
     double m, sigma_m;// sigma_m_tau, sigma_m_tau2;
@@ -33,7 +32,8 @@ public:
     double tau_E;// tau_M;
 
     void   reset();
-    void   load_data(int temperature_ID, double temperature);
+    void   load_data(std::vector<double>&E_timeseries, std::vector<double>&M_timeseries, double temperature);
+    void   load_data(ArrayXd &E_timeseries, ArrayXd &M_timeseries, double temperature);
     void   compute_stats();
     void   calc_thermo();
 

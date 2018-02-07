@@ -6,6 +6,7 @@
 #define WL_CLASS_PRINT_DATA_H
 #include <Eigen/Core>
 #include <Eigen/Dense>
+
 #include <cstdlib>
 #include <stdexcept>
 #include <sys/stat.h>
@@ -14,138 +15,117 @@
 #include <iostream>
 #include <iomanip>
 #include <sim_parameters/n_sim_settings.h>
+#include <IO/class_hdf5_file.h>
+
 #include <fstream>
+#include <IO/class_hdf5_table_buffer.h>
 
 
 using namespace std;
 using namespace Eigen;
 
+
 class output {
 private:
 
-    string      timeseries_folder     ;
-    string      groundstates_folder   ;
-    string      thermodynamics_folder ;
+    const string      timeseries_group     = "timeseries";
+    const string      groundstates_group   = "groundstates";
+    const string      thermodynamics_group = "thermodynamics";
     int         iteration;
     int         precision = 12;
     int         world_ID;
-public:
-    output(int id):world_ID(id){
-        //Create folders
-        timeseries_folder       = settings::hdf5::output_folder + "timeseries/";
-        groundstates_folder     = settings::hdf5::output_folder + "groundstates/";
-        thermodynamics_folder   = settings::hdf5::output_folder + "thermodynamics/";
-        create_folder_master(timeseries_folder    , world_ID);
-        create_folder_master(groundstates_folder  , world_ID);
-        create_folder_master(thermodynamics_folder, world_ID);
-    };
-    void create_folder(string folder_name);
-    void create_folder_master(string folder, const int &id);
-    void create_folder_worker(string folder);
-    int mkdir_p(const char *path);
 
+public:
+    std::shared_ptr<class_hdf5_file> hdf5;
+    std::shared_ptr<class_hdf5_table_buffer> table_buffer;
+    bool thermodynamics_has_data = false;
+    bool timeseries_has_data = false;
+    explicit output(int id);
 
     //Groundstate Lattices
     template<typename T>
-    void store_groundstates(vector<T> &lattice_groundstate){
-        if (world_ID == 0) {
-            for (int i = 0; i < (int)lattice_groundstate.size(); i++) {
-                write_to_file(lattice_groundstate[i], groundstates_folder + "lattice" + to_string(i) + ".dat");
-            }
-        }
+    void store_groundstates(T &lattice_groundstate){
+        hdf5->write_dataset_mpi(lattice_groundstate, groundstates_group + "/" + "lattice");
         lattice_groundstate.clear();
     }
 
 
     //Generic data
-    template<typename Derived>
-    void store_thermo(const ArrayBase<Derived> &data, std::string name){
-        write_to_file(data, thermodynamics_folder + name);
-
-    }
-
-    //Generic data
     template<typename T>
     void store_thermo(const T &data, std::string name){
-        string folder = thermodynamics_folder;
-        create_folder_master(folder,world_ID);
-        write_to_file(data, thermodynamics_folder + name);
+        hdf5->write_dataset_mpi(data, thermodynamics_group + "/" + name);
+        thermodynamics_has_data = true;
     }
 
 
-    //File streams
-    template<typename Derived>
-    void store_samples(const ArrayBase<Derived> &data, std::string name, int store_counter){
-        if (store_counter == 0){
-            write_to_file(data, timeseries_folder + name);
-        }else{
-            append_to_file(data, timeseries_folder + name);
-        }
-    }
-
+    //Time series
     template<typename T>
-    void store_samples(vector<T> vec_data, std::string name, int store_counter){
-        ArrayXd data = Map<ArrayXd>(vec_data.data(), vec_data.size());
-        if (store_counter == 0){
-            write_to_file(data, timeseries_folder + name);
-        }else{
-            append_to_file(data, timeseries_folder + name);
-        }
+    void store_samples(const T &data, std::string name, int store_counter){
+        hdf5->write_dataset_mpi(data, timeseries_group + "/" + name);
+        timeseries_has_data = true;
     }
 
-
+    //Anything
     template<typename T>
-    void write_to_file(const T &data, string filename){
-        ofstream file(filename,ios::out | ios::trunc);
-        file << fixed << showpoint << setprecision(precision);
-        file << data << endl;
-        file.flush();
-        file.close();
+    void store_matrix(const T &data, std::string name, int store_counter){
+        hdf5->write_dataset_mpi(data,  name);
     }
+    
+    
 
-    template<typename Derived>
-    void write_to_file(const MatrixBase<Derived> &data, string filename){
-        ofstream file(filename,ios::out | ios::trunc);
-        file << fixed << showpoint << setprecision(precision);
-        string      _coeffSeparator = "	";
-        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-        file << data.format(fmt) << endl;
-        file.flush();
-        file.close();
-    }
-
-    template<typename Derived>
-    void write_to_file(const ArrayBase<Derived> &data, string filename){
-        ofstream file(filename,ios::out | ios::trunc);
-        file << fixed << showpoint << setprecision(precision);
-        string      _coeffSeparator = "	";
-        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-        file << data.format(fmt) << endl;
-        file.flush();
-        file.close();
-    }
-
-    template<typename Derived>
-    void append_to_file(const MatrixBase<Derived> &data, string filename){
-        ofstream file(filename,ios::out | ios::app);
-        file << fixed << showpoint << setprecision(precision);
-        string      _coeffSeparator = "	";
-        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-        file << data.format(fmt) << endl;
-        file.flush();
-        file.close();
-    }
-
-    template<typename Derived>
-    void append_to_file(const ArrayBase<Derived> &data, string filename){
-        ofstream file(filename,ios::out | ios::app);
-        file << fixed << showpoint << setprecision(precision);
-        string      _coeffSeparator = "	";
-        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-        file << data.format(fmt) << endl;
-        file.flush();
-        file.close();
-    }
+//
+//    template<typename T>
+//    void write_dataset(const T &data, string filename){
+//        ofstream file(filename,ios::out | ios::trunc);
+//        file << fixed << showpoint << setprecision(precision);
+//        file << data << endl;
+//        file.flush();
+//        file.close();
+//    }
+//
+//    template<typename Derived>
+//    void write_dataset(const MatrixBase<Derived> &data, string filename){
+//        ofstream file(filename,ios::out | ios::trunc);
+//        file << fixed << showpoint << setprecision(precision);
+//        string      _coeffSeparator = "	";
+//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
+//        file << data.format(fmt) << endl;
+//        file.flush();
+//        file.close();
+//    }
+//
+//    template<typename Derived>
+//    void write_dataset(const ArrayBase<Derived> &data, string filename){
+//        ofstream file(filename,ios::out | ios::trunc);
+//        file << fixed << showpoint << setprecision(precision);
+//        string      _coeffSeparator = "	";
+//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
+//        file << data.format(fmt) << endl;
+//        file.flush();
+//        file.close();
+//    }
+//
+//    template<typename Derived>
+//    void append_to_file(const MatrixBase<Derived> &data, string filename){
+//        ofstream file(filename,ios::out | ios::app);
+//        file << fixed << showpoint << setprecision(precision);
+//        string      _coeffSeparator = "	";
+//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
+//        file << data.format(fmt) << endl;
+//        file.flush();
+//        file.close();
+//    }
+//
+//    template<typename Derived>
+//    void append_to_file(const ArrayBase<Derived> &data, string filename){
+//        ofstream file(filename,ios::out | ios::app);
+//        file << fixed << showpoint << setprecision(precision);
+//        string      _coeffSeparator = "	";
+//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
+//        file << data.format(fmt) << endl;
+//        file.flush();
+//        file.close();
+//    }
 
 };
 

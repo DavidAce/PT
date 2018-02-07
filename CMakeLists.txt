@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(PT)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(cmake/get_libraries.cmake)
 
@@ -88,7 +88,7 @@ endif()
 ###########################################
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 file(GLOB_RECURSE HEADERS "source/*.h")
-add_executable(PT main.cpp ${SOURCES} ${HEADERS})
+add_executable(PT main.cpp ${SOURCES} ${HEADERS} source/IO/nmspc_type_check.h source/IO/class_hdf5_table_buffer_mpi.cpp)
 
 
 ###########################################

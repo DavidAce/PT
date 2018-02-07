@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     MPI_Barrier(MPI_COMM_WORLD);
     cout << "ID " << world_ID << ":  running paralleltempering" << endl<< flush;
 
-    paralleltempering(worker);
+    PT::paralleltempering(worker);
     MPI_Finalize();
     return 0;
 }
