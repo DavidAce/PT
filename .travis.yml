@@ -48,7 +48,7 @@ matrix:
           packages:
             - llvm-5.0-dev
             - clang-5.0
-#            - libstdc++-7-dev
+            - libstdc++-7-dev
             - libc++-dev
             - libc++abi-dev
             - gfortran

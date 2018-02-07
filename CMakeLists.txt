@@ -24,16 +24,9 @@ find_package(MPI REQUIRED)
 # add this line only when you are using openmpi which has a different c++ bindings
 # MAKE SURE "g++" and "c++" environment variables points to the same compiler, i.e. clang or gnu.
 add_definitions(-DOMPI_SKIP_MPICXX)
-
-#set(MPI_CXX_COMPILE_OPTIONS "-cxx=g++-7")
 message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
-
-
-
-
-#include_directories(${MPI_INCLUDE_PATH})
 
 include(cmake/Find_or_install_EIGEN3.cmake)                                     ### For Eigen linear algebra header-library http://eigen.tuxfamily.org/
 include(cmake/Find_or_install_HDF5.cmake)                                       ### For HDF5 data storage format            https://support.hdfgroup.org
