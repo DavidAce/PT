@@ -1,0 +1,81 @@
+dist: trusty
+sudo: false
+language: generic
+notifications:
+  email: false
+
+
+
+matrix:
+  fast_finish: true
+  include:
+    - os: linux
+      compiler: gcc
+      env: COMPILER_NAME=gcc
+        - GCC_VERSION=7
+        - CC=gcc-7
+        - CXX=g++-7
+        - FC=gfortran
+        - MATRIX_EVAL="CXX=g++-7 && CC=gcc-7 && FC=gfortran"
+      cache:
+        apt: true
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-7
+            - gfortran
+            - openmpi
+            - openmpi-bin
+            - libopenmpi-dev
+
+    - os: linux
+      compiler: clang
+      env: COMPILER_NAME=clang
+        - CXX=clang++-5.0
+        - CC=clang-5.0
+        - CLANG_VERSION=5.0
+        - FC=gfortran
+        - MATRIX_EVAL="CXX=clang++-5.0 && CC=clang-5.0 && FC=gfortran"
+      cache:
+        apt: true
+      addons:
+        apt:
+          sources:
+          - sourceline:  'ppa:ubuntu-toolchain-r/test'
+          - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main'
+            key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - llvm-5.0-dev
+            - clang-5.0
+#            - libstdc++-7-dev
+            - libc++-dev
+            - libc++abi-dev
+            - gfortran
+            - openmpi
+            - openmpi-bin
+            - libopenmpi-dev
+
+#    - os: osx
+#      osx_image: xcode9.2
+#      compiler: clang
+#      env: COMPILER_NAME='clang'
+#        - CXX=clang++-5.0
+#        - CC=clang-5.0
+#        - CLANG_VERSION=5.0
+#        - FC=gfortran
+#        - MATRIX_EVAL="CXX=clang++-5.0 && CC=clang-5.0 && FC=gfortran"
+
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install gcc   ; fi
+  - eval "${MATRIX_EVAL}"
+
+script:
+  - cmake -E make_directory build/Release
+  - cd build/Release
+  - cmake -Bbuild/Release --build build -config Release ../../
+  - make
+
+

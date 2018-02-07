@@ -43,13 +43,10 @@ else
 fi
 
 
-rm -rf build
-mkdir build
-cd build
-mkdir ${buildtype}
-cd ${buildtype}
-
-
 echo "Starting Build"
-cmake ${dcmake_c_compiler} ${dcmake_cxx_compiler} -DCMAKE_BUILD_TYPE=${buildtype}  ../../
+cmake -E make_directory build/Release
+cd build/Release
+cmake -Bbuild/Release --build build -config Release  ../../
 make
+#cmake ${dcmake_c_compiler} ${dcmake_cxx_compiler} -DCMAKE_BUILD_TYPE=${buildtype}  ../../
+#make
