@@ -198,28 +198,16 @@ namespace parallel {
             out.hdf5->read_dataset_mpi(M_timeseries,"timeseries/M");
             worker.thermo.load_data(E_timeseries,M_timeseries, T);
             worker.thermo.compute_stats();
-            out.table_buffer->emplace_back(worker.thermo.u,
-                                           worker.thermo.sigma_u,
-                                           worker.thermo.m,
-                                           worker.thermo.sigma_m,
-                                           worker.thermo.c,
-                                           worker.thermo.sigma_c,
-                                           worker.thermo.x,
-                                           worker.thermo.sigma_x);
         }
     }
 
     void katz_Tladder(class_worker &worker) {
-
+        // This function moves the temperature on the ladder according to Katzgrabbers paper.
         ArrayXd f_all(worker.world_size);
         int nup = 0, ndn = 0;
-        for (int i = 0; i < worker.n_history.size(); i++){
-            if (worker.n_history[i] == 1){
-                nup++;
-            }
-            if (worker.n_history[i] == -1) {
-                ndn++;
-            }
+        for (auto &n : worker.n_history){
+            if(n == 1){nup++;}
+            if(n ==-1){ndn++;}
         }
 
         double fn = (double)nup/fmax(1,(nup+ndn));
@@ -242,7 +230,7 @@ namespace parallel {
 
         //Use Laplacian(?) smoothing: Each interior point is the mean of its neighbors.
         ArrayXd f_smooth = f_all;
-        int smooth_iterations = 10;
+        int smooth_iterations = 20;
         for (int s = 0; s < smooth_iterations ; s++) {
             for (int i = 1; i < f_all.size()-1; i++) {
 //                    f_smooth(i) = 0.5*(f_all(i-1) + f_all(i+1));
@@ -304,7 +292,7 @@ namespace parallel {
             out.hdf5->read_dataset_mpi(M_timeseries,"timeseries/M");
             worker.thermo.load_data(E_timeseries,M_timeseries, T);
             worker.thermo.calc_thermo();
-            out.table_buffer->emplace_back(worker.thermo.u,
+            out.thermo_table->emplace_back(worker.thermo.u,
                                            worker.thermo.sigma_u,
                                            worker.thermo.m,
                                            worker.thermo.sigma_m,
@@ -313,62 +301,6 @@ namespace parallel {
                                            worker.thermo.x,
                                            worker.thermo.sigma_x);
         }
-
-
-
-//        std::vector<double> E_timeseries , M_timeseries;
-//        out.hdf5->read_dataset_mpi(E_timeseries,"timeseries/E");
-//        out.hdf5->read_dataset_mpi(M_timeseries,"timeseries/M");
-//        double T = worker.T_ladder(worker.world_ID);
-//        worker.thermo.load_data(E_timeseries,M_timeseries,worker.world_ID, T);
-//        worker.thermo.calc_thermo();
-//
-//        out.table_buffer->emplace_back(worker.thermo.u,
-//                                      worker.thermo.sigma_u,
-//                                      worker.thermo.m,
-//                                      worker.thermo.sigma_m,
-//                                      worker.thermo.c,
-//                                      worker.thermo.sigma_c,
-//                                      worker.thermo.x,
-//                                      worker.thermo.sigma_x);
-
-//        int n = worker.world_size;
-//        ArrayXd u(n),m(n),c(n),x(n);
-//        ArrayXd sigma_u(n),sigma_m(n),sigma_c(n),sigma_x(n);
-//        int color, key;
-//        MPI_Comm MPI_COMM_T;
-//        color = 0;
-//        key   = worker.T_ID;
-//        MPI_Comm_split(MPI_COMM_WORLD, color, key, &MPI_COMM_T);
-//
-//        MPI_Gather(&worker.thermo.u, 1, MPI_DOUBLE, u.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.m, 1, MPI_DOUBLE, m.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.c, 1, MPI_DOUBLE, c.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.x, 1, MPI_DOUBLE, x.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//
-//        MPI_Gather(&worker.thermo.sigma_u, 1, MPI_DOUBLE, sigma_u.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.sigma_m, 1, MPI_DOUBLE, sigma_m.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.sigma_c, 1, MPI_DOUBLE, sigma_c.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//        MPI_Gather(&worker.thermo.sigma_x, 1, MPI_DOUBLE, sigma_x.data(), 1, MPI_DOUBLE, 0, MPI_COMM_T);
-//
-//        if(worker.T_ID == 0){
-//            out.store_thermo(u, "u.dat");
-//            out.store_thermo(m, "m.dat");
-//            out.store_thermo(c, "c.dat");
-//            out.store_thermo(x, "x.dat");
-//
-//            out.store_thermo(sigma_u, "u_std.dat");
-//            out.store_thermo(sigma_m, "m_std.dat");
-//            out.store_thermo(sigma_c, "c_std.dat");
-//            out.store_thermo(sigma_x, "x_std.dat");
-//
-//            out.store_thermo(worker.T_ladder, "T.dat");
-//            out.store_thermo(worker.model.J1, "J1.dat");
-//            out.store_thermo(worker.model.J2, "J2.dat");
-//            out.store_thermo(worker.model.J3, "J3.dat");
-//            out.store_thermo(worker.model.L, "L.dat");
-//        }
-
 
 
     }

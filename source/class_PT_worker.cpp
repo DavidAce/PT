@@ -1,11 +1,18 @@
 //
 // Created by david on 2016-07-24.
 //
+#include <set>
+#include <iterator>
+#include <mpi.h>
+#include <random>
+#include <sim_parameters/n_sim_settings.h>
+#include <nmspc_math_algorithms.h>
+#include <nmspc_random_numbers.h>
 #include "class_PT_worker.h"
 
 #define profiling_total                	1
 #define profiling_print                	1
-#define profiling_sweep                	1
+#define profiling_sweep                	0
 #define profiling_swap                 	0
 #define profiling_make_MC_trial 		0
 #define profiling_acceptance_criterion 	0
@@ -41,29 +48,14 @@ class_worker::class_worker(int id, int size):
                                 t_make_MC_trial        (profiling_make_MC_trial,        3,"t_mkMC") ,
                                 t_acceptance_criterion (profiling_acceptance_criterion, 3,"t_accr")
 {
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << "ID " << id << ":  seeding" << endl<< flush;
     rn::rng.seed((unsigned long)world_ID);
     sampling     = false;
     direction    = 0;
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << "ID " << id << ":  starting counters" << endl<< flush;
     start_counters();
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << "ID " << id << ":  initial temperatures" << endl<< flush;
     set_initial_temperatures();
-
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << "ID " << id << ":  reserving history" << endl<< flush;
-//    T_history.reserve((ulong)settings::rate::save_buffers);
-//    E_history.reserve((ulong)settings::rate::save_buffers);
-//    M_history.reserve((ulong)settings::rate::save_buffers);
-    MPI_Barrier(MPI_COMM_WORLD);
-    cout << "ID: " << world_ID << " Started OK"<<endl;
-    MPI_Barrier(MPI_COMM_WORLD);
     T_ID_list.resize((ulong) world_size);
     MPI_Allgather(&T_ID,1,MPI_INT,T_ID_list.data(),1, MPI_INT, MPI_COMM_WORLD);
+    cout << "ID: " << world_ID << " Started OK"<<endl;
 
 }
 
@@ -102,13 +94,25 @@ void class_worker::sweep(){
         if(rn::uniform_double_1() < fmin(1,exp(-(model.E_trial - model.E)/T))) {
             counter::accepts++;
             model.accept_state();
-            if (!sampling) {
-                groundstate.check(model.E, model.lattice);
-            }
         }
     }
     t_sweep.toc();
 }
+
+void class_worker::sweep(class_PT_groundstate &GS){
+    t_sweep.tic();
+    for (int i = 0; i < settings::model::N ; i++){
+        model.make_new_state();
+        counter::trials++;
+        if(rn::uniform_double_1() < fmin(1,exp(-(model.E_trial - model.E)/T))) {
+            counter::accepts++;
+            model.accept_state();
+            GS.check(model.E, model.lattice);
+        }
+    }
+    t_sweep.toc();
+}
+
 
 
 //Function for printing the lattice. Very easy if L is an Eigen matrix.

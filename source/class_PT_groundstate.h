@@ -11,13 +11,14 @@ using namespace Eigen;
 using namespace std;
 class class_PT_groundstate {
 private:
-    int              maximum_storage = 10;
+    int              maximum_storage = 100;
 
 
 public:
     class_PT_groundstate(){};
     double           E_GS;
-    vector<ArrayXXi> lattices_GS;
+    std::vector<double>   energies_GS;
+    std::vector<ArrayXXi> lattices_GS;
     void check(double E, ArrayXXi &lattice);
     void sync();
 

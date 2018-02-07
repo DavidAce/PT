@@ -88,7 +88,7 @@ endif()
 ###########################################
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 file(GLOB_RECURSE HEADERS "source/*.h")
-add_executable(PT main.cpp ${SOURCES} ${HEADERS} source/IO/nmspc_type_check.h source/IO/class_hdf5_table_buffer_mpi.cpp)
+add_executable(PT main.cpp ${SOURCES} ${HEADERS})
 
 
 ###########################################

@@ -12,24 +12,18 @@ using namespace std;
 
 class class_thermo{
 private:
-    ArrayXXd read_file(string);
     ArrayXd E,M;
-    double E_mean, E_sq_mean, M_mean, M_sq_mean;
-    double E_var , E_std, M_var, M_std;
-
-
 
 public:
     class_thermo() {};
     double T;
 
-    double u, sigma_u;// sigma_u_tau, sigma_u_tau2;
-    double m, sigma_m;// sigma_m_tau, sigma_m_tau2;
-    double c, sigma_c;// sigma_c_tau, sigma_c_tau2;
-    double x, sigma_x;// sigma_x_tau, sigma_x_tau2;
-//    double s, sigma_s;
-    double sigma_u_flyv;
-    double tau_E;// tau_M;
+    double u = 0; double sigma_u = 0;
+    double m = 0; double sigma_m = 0;
+    double c = 0; double sigma_c = 0;
+    double x = 0; double sigma_x = 0;
+    double sigma_u_flyv = 0;
+    double tau_E = 0;// tau_M;
 
     void   reset();
     void   load_data(std::vector<double>&E_timeseries, std::vector<double>&M_timeseries, double temperature);

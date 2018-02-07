@@ -1,11 +1,14 @@
 //
-// Created by david on 2018-02-06.
+// Created by david on 2018-02-07.
 //
 
-#include <IO/class_hdf5_table_buffer.h>
+
+#include <IO/class_hdf5_model_table.h>
 #include <IO/class_hdf5_file.h>
 #include <mpi.h>
-void class_hdf5_table_buffer::initialize_table_mpi(){
+
+
+void class_hdf5_model_table::initialize_table_mpi(){
     if (this->empty() and !table_is_ready) {
         hsize_t NRECORDS = this->size();
         hdf5_out->create_group_link(group_name);
@@ -28,7 +31,7 @@ void class_hdf5_table_buffer::initialize_table_mpi(){
 }
 
 
-void class_hdf5_table_buffer::write_buffer_to_file_mpi() {
+void class_hdf5_model_table::write_buffer_to_file_mpi() {
     if (!this->empty() and table_is_ready) {
         //This only works if there is exactly the same amount of data in each record!
         hsize_t NRECORDS = this->size();
@@ -38,9 +41,8 @@ void class_hdf5_table_buffer::write_buffer_to_file_mpi() {
                                meta.dst_sizes, this->data());
         }
         std::string table_path_n = table_path + std::to_string(mpi_rank);
-
         H5TBwrite_records(hdf5_out->file, table_path_n.c_str(),recorded_elements, NRECORDS, meta.dst_size, meta.dst_offset,
-                           meta.dst_sizes, this->data());
+                          meta.dst_sizes, this->data());
         recorded_elements += NRECORDS;
         this->clear();
         buffer_is_empty = true;

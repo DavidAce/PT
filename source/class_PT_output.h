@@ -16,9 +16,9 @@
 #include <iomanip>
 #include <sim_parameters/n_sim_settings.h>
 #include <IO/class_hdf5_file.h>
-
 #include <fstream>
-#include <IO/class_hdf5_table_buffer.h>
+#include <IO/class_hdf5_thermo_table.h>
+#include <IO/class_hdf5_model_table.h>
 
 
 using namespace std;
@@ -31,22 +31,26 @@ private:
     const string      timeseries_group     = "timeseries";
     const string      groundstates_group   = "groundstates";
     const string      thermodynamics_group = "thermodynamics";
-    int         iteration;
-    int         precision = 12;
-    int         world_ID;
+    const string      model_group = "model";
 
 public:
+//    std::shared_ptr<class_worker> worker;
     std::shared_ptr<class_hdf5_file> hdf5;
-    std::shared_ptr<class_hdf5_table_buffer> table_buffer;
+    std::shared_ptr<class_hdf5_thermo_table> thermo_table;
+    std::shared_ptr<class_hdf5_model_table> model_table;
     bool thermodynamics_has_data = false;
     bool timeseries_has_data = false;
-    explicit output(int id);
+    explicit output();
 
     //Groundstate Lattices
-    template<typename T>
-    void store_groundstates(T &lattice_groundstate){
-        hdf5->write_dataset_mpi(lattice_groundstate, groundstates_group + "/" + "lattice");
-        lattice_groundstate.clear();
+    void store_groundstates(std::vector<ArrayXXi> &lattice_groundstates, std::vector<double> & energy_groundstates){
+        assert(lattice_groundstates.size() == energy_groundstates.size() and "Size mismatch on collected ground states!");
+        for (int i = 0; i < (int)lattice_groundstates.size(); i++){
+            hdf5->write_dataset_mpi(lattice_groundstates[i], groundstates_group + "/" + "lattice" + std::to_string(i), false);
+            hdf5->write_attribute_to_dataset(groundstates_group + "/" + "lattice" + std::to_string(i),energy_groundstates[i], "energy");
+        }
+        lattice_groundstates.clear();
+        energy_groundstates.clear();
     }
 
 
@@ -66,67 +70,20 @@ public:
     }
 
     //Anything
-    template<typename T>
-    void store_matrix(const T &data, std::string name, int store_counter){
-        hdf5->write_dataset_mpi(data,  name);
+    void store_model(){
+        model_table->emplace_back(settings::model::J1,
+                                  settings::model::J2,
+                                  settings::model::J3,
+                                  settings::model::L);
     }
-    
-    
 
-//
-//    template<typename T>
-//    void write_dataset(const T &data, string filename){
-//        ofstream file(filename,ios::out | ios::trunc);
-//        file << fixed << showpoint << setprecision(precision);
-//        file << data << endl;
-//        file.flush();
-//        file.close();
-//    }
-//
-//    template<typename Derived>
-//    void write_dataset(const MatrixBase<Derived> &data, string filename){
-//        ofstream file(filename,ios::out | ios::trunc);
-//        file << fixed << showpoint << setprecision(precision);
-//        string      _coeffSeparator = "	";
-//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-//        file << data.format(fmt) << endl;
-//        file.flush();
-//        file.close();
-//    }
-//
-//    template<typename Derived>
-//    void write_dataset(const ArrayBase<Derived> &data, string filename){
-//        ofstream file(filename,ios::out | ios::trunc);
-//        file << fixed << showpoint << setprecision(precision);
-//        string      _coeffSeparator = "	";
-//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-//        file << data.format(fmt) << endl;
-//        file.flush();
-//        file.close();
-//    }
-//
-//    template<typename Derived>
-//    void append_to_file(const MatrixBase<Derived> &data, string filename){
-//        ofstream file(filename,ios::out | ios::app);
-//        file << fixed << showpoint << setprecision(precision);
-//        string      _coeffSeparator = "	";
-//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-//        file << data.format(fmt) << endl;
-//        file.flush();
-//        file.close();
-//    }
-//
-//    template<typename Derived>
-//    void append_to_file(const ArrayBase<Derived> &data, string filename){
-//        ofstream file(filename,ios::out | ios::app);
-//        file << fixed << showpoint << setprecision(precision);
-//        string      _coeffSeparator = "	";
-//        IOFormat fmt(StreamPrecision, 0, _coeffSeparator);
-//        file << data.format(fmt) << endl;
-//        file.flush();
-//        file.close();
-//    }
 
+    //Anything
+    template<typename T>
+    void store_generic(const T &data,std::string group,  std::string name, bool each_mpi_thread = true){
+        hdf5->create_group_link(group);
+        hdf5->write_dataset_mpi(data,  group +"/"+ name, each_mpi_thread);
+    }
 };
 
 

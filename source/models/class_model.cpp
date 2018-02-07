@@ -27,7 +27,7 @@ void class_model::randomize_lattice() {
     }
 }
 
-void class_model::flip()  __attribute__((always_inline)) {
+void class_model::flip() {
     lattice(randI,randJ) *= -1;
 }
 

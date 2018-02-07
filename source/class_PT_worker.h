@@ -4,35 +4,13 @@
 
 #ifndef CLASS_PT_WORKER_H
 #define CLASS_PT_WORKER_H
-#include <mpi.h>
-#include <random>
-#include <fstream>
-#include <thread>
-#include <chrono>
+
 #include <Eigen/Core>
-#include <Eigen/Dense>
-#include <set>
-#include <iterator>
 #include <models/class_model.h>
 #include <class_tic_toc.h>
 #include <class_PT_thermo.h>
-#include "class_PT_groundstate.h"
-#include <sim_parameters/n_sim_settings.h>
+#include <class_PT_groundstate.h>
 #include <nmspc_PT_counters_timers.h>
-#include <nmspc_math_algorithms.h>
-#include <nmspc_random_numbers.h>
-
-using namespace Eigen;
-
-template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
-    if ( !v.empty() ) {
-        out << "[ ";
-        std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, " "));
-        out << "]";
-    }
-    return out;
-}
 
 
 class class_worker {
@@ -46,17 +24,13 @@ public:
     //Temperature communication
     int     T_ID;
     double  T;
-    ArrayXd T_ladder;
+    Eigen::ArrayXd T_ladder;
     vector<int> T_ID_list;
     int world_ID_up, world_ID_dn;
     bool sampling;
 
     //class_model, including lattice and observables
-//    std::unique_ptr<class_model_base> model;
     class_model model;
-
-    //Ground state
-    class_PT_groundstate groundstate;
 
     //Thermodynamics
     class_thermo thermo;
@@ -68,9 +42,7 @@ public:
 
     //Katzgrabber
     vector <int> n_history;
-
     int direction;  // 1 for up, -1 for down, 0 if not applicable
-
 
     //PT acceptance criterion
     bool accept;
@@ -86,6 +58,7 @@ public:
     void start_counters();
     void set_initial_temperatures();
     void sweep() __attribute__((hot));
+    void sweep(class_PT_groundstate &GS);
     friend std::ostream &operator<<(std::ostream &, const class_worker &);
 };
 

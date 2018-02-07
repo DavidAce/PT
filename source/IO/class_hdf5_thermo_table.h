@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <H5Cpp.h>
+#include <IO/class_hdf5_file.h>
 
 
 class class_hdf5_file;
@@ -100,7 +100,7 @@ public:
 
 
 
-class class_hdf5_table_buffer : public std::vector<thermo_entry> {
+class class_hdf5_thermo_table : public std::vector<thermo_entry> {
 public:
     std::shared_ptr<class_hdf5_file> hdf5_out;
     class_thermo_entry_meta meta;
@@ -108,23 +108,21 @@ public:
     std::string table_name      = "default_table";
     std::string table_path;
     int mpi_rank, mpi_size;
-//    int max_elements            = 5000;
     hsize_t recorded_elements       = 0;
-    std::string table_relative_name;
     bool buffer_is_empty = false;
     bool table_is_ready  = false;
     bool mpi_on          = false;
-    explicit class_hdf5_table_buffer()=default;
-    class_hdf5_table_buffer(std::shared_ptr<class_hdf5_file> hdf5_out_,
+    explicit class_hdf5_thermo_table()=default;
+    class_hdf5_thermo_table(std::shared_ptr<class_hdf5_file> hdf5_out_,
                             std::string group_name_,
                             std::string table_name,
                             bool mpi_on_   );
-    class_hdf5_table_buffer(std::nullptr_t nullp,
+    class_hdf5_thermo_table(std::nullptr_t nullp,
                             std::string group_name_,
                             std::string table_name,
                             bool mpi_on_);
 
-    class_hdf5_table_buffer(std::string group_name_,
+    class_hdf5_thermo_table(std::string group_name_,
                             std::string table_name_,
                             bool mpi_on_  );
     void initialize_table();
@@ -132,7 +130,7 @@ public:
     void write_buffer_to_file();
     void write_buffer_to_file_mpi();
 
-    ~class_hdf5_table_buffer(){
+    ~class_hdf5_thermo_table(){
         if (hdf5_out){
             if(mpi_on){
                 write_buffer_to_file_mpi();
@@ -145,6 +143,12 @@ public:
         }
     }
 };
+
+
+
+
+
+
 
 
 #endif //CLASS_HDF5_TABLE_BUFFER_H
