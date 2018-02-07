@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/DavidAce/PT.svg?branch=master)](https://travis-ci.org/DavidAce/PT)
 # Monte Carlo Parallel Tempering
 
 
