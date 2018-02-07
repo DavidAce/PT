@@ -75,6 +75,8 @@ void class_hdf5_thermo_table::write_buffer_to_file() {
                            meta.dst_offset, meta.dst_sizes, this->data());
 
         this->clear();
+        recorded_elements += NRECORDS;
+
     }
     buffer_is_empty = true;
 }
