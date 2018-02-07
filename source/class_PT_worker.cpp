@@ -53,7 +53,7 @@ class_worker::class_worker(int id, int size):
     direction    = 0;
     start_counters();
     set_initial_temperatures();
-    T_ID_list.resize((ulong) world_size);
+    T_ID_list.resize((unsigned long) world_size);
     MPI_Allgather(&T_ID,1,MPI_INT,T_ID_list.data(),1, MPI_INT, MPI_COMM_WORLD);
     cout << "ID: " << world_ID << " Started OK"<<endl;
 

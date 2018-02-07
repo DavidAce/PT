@@ -49,7 +49,7 @@ void class_hdf5_file::initialize_mpi(){
 
 
 void class_hdf5_file::extend_dataset_mpi(const std::string & dataset_relative_name, const int dim, const int extent ){
-    std::vector<int> all_extents((ulong)mpi_size);
+    std::vector<int> all_extents((unsigned long)mpi_size);
     MPI_Allgather(&extent, 1, MPI_INT, all_extents.data(), 1, MPI_INT, MPI_COMM_WORLD);
     for (int i = 0; i < mpi_size; i++) {
         std::string dataset_relative_name_n = dataset_relative_name + std::to_string(i);
