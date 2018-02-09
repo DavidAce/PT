@@ -3,7 +3,8 @@
 //
 
 #include <IO/class_hdf5_file.h>
-
+#include <H5Cpp.h>
+#include <H5FDmpio.h>
 
 
 void class_hdf5_file::initialize_mpi(){
