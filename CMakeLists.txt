@@ -70,6 +70,18 @@ endif()
 
 
 
+###################
+### INFORMATION ###
+###################
+message("==================================================================")
+message("")
+message("      To clean cmake files, run './build.sh clean'")
+message("      To clean cmake files downloaded libraries, run './clean.sh '")
+message("      To launch this program,  './run.sh'")
+message("")
+message("==================================================================")
+
+
 
 
 
