@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#rm -rf *
+
 buildtype="Release"
 dcmake_c_compiler=""
 dcmake_cxx_compiler=""
@@ -44,9 +44,19 @@ fi
 
 
 echo "Starting Build"
-cmake -E make_directory build/Release
-cd build/Release
-cmake -Bbuild/Release --build build -config Release  ../../
-make
+cmake -E make_directory build/${buildtype}
+cd build/${buildtype}
+cmake -DCMAKE_BUILD_TYPE=${buildtype} -G "CodeBlocks - Unix Makefiles" ../../
+cmake --build . --target PT -- -j 4
+
+
+#
+#
+#cmake -E make_directory build/${buildtype}
+#cd build/${buildtype}
+#cmake -Bbuild/${buildtype} --build build -config ${buildtype}  ../../
+#make
+
+
 #cmake ${dcmake_c_compiler} ${dcmake_cxx_compiler} -DCMAKE_BUILD_TYPE=${buildtype}  ../../
 #make
