@@ -12,6 +12,7 @@
 class class_hdf5_file;
 
 struct thermo_entry{
+    double   T;
     double   u;
     double   u_std;
     double   m;
@@ -23,6 +24,7 @@ struct thermo_entry{
 
 
     thermo_entry(
+    double   T,
     double   u,
     double   u_std,
     double   m,
@@ -32,6 +34,7 @@ struct thermo_entry{
     double   x,
     double   x_std)
             :
+            T(T),
             u(u),
             u_std(u_std),
             m(m),
@@ -46,9 +49,10 @@ struct thermo_entry{
 
 class class_thermo_entry_meta{
 public:
-    constexpr static hsize_t NFIELDS = 8;
+    constexpr static hsize_t NFIELDS = 9;
     size_t dst_size = sizeof( thermo_entry );
-    size_t dst_offset[NFIELDS] = { HOFFSET(thermo_entry, u),
+    size_t dst_offset[NFIELDS] = { HOFFSET(thermo_entry, T),
+                                   HOFFSET(thermo_entry, u),
                                    HOFFSET(thermo_entry, u_std),
                                    HOFFSET(thermo_entry, m),
                                    HOFFSET(thermo_entry, m_std),
@@ -57,7 +61,8 @@ public:
                                    HOFFSET(thermo_entry, x),
                                    HOFFSET(thermo_entry, x_std)};
 
-    size_t dst_sizes[NFIELDS] = {  sizeof(thermo_entry::u),
+    size_t dst_sizes[NFIELDS] = {  sizeof(thermo_entry::T),
+                                   sizeof(thermo_entry::u),
                                    sizeof(thermo_entry::u_std),
                                    sizeof(thermo_entry::m),
                                    sizeof(thermo_entry::m_std),
@@ -68,7 +73,8 @@ public:
     };
 
     const char *field_names[NFIELDS] =
-            { "u",
+            { "T",
+              "u",
               "u_std",
               "m",
               "m_std",
@@ -85,6 +91,7 @@ public:
                                       H5T_NATIVE_DOUBLE,
                                       H5T_NATIVE_DOUBLE,
                                       H5T_NATIVE_DOUBLE,
+                                      H5T_NATIVE_DOUBLE,
                                       H5T_NATIVE_DOUBLE
                                         };
     hid_t      string_type = H5Tcopy( H5T_C_S1 );
@@ -93,7 +100,7 @@ public:
     int        compress    = 0;
     int        i;
     class_thermo_entry_meta(){
-        H5Tset_size( string_type, 16 );
+        H5Tset_size( string_type, 20 );
     }
 };
 

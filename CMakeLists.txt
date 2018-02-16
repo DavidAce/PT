@@ -28,18 +28,6 @@ message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
 message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
 message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
 
-include(cmake/Find_or_install_EIGEN3.cmake)                                     ### For Eigen linear algebra header-library http://eigen.tuxfamily.org/
-include(cmake/Find_or_install_HDF5.cmake)                                       ### For HDF5 data storage format            https://support.hdfgroup.org
-
-message("======================================")
-message("=== SUMMARY OF CMAKE CONFIGURATION ===")
-message("======================================")
-message("FOUND EIGEN3   :   ${EIGEN3_INCLUDE_DIR}")
-message("FOUND HDF5     :   ${HDF5_LIBRARIES}")
-message("======================================")
-
-
-
 ###################
 ### Setup flags ###
 ###################
@@ -70,23 +58,6 @@ endif()
 
 
 
-###################
-### INFORMATION ###
-###################
-message("==================================================================")
-message("")
-message("      To clean cmake files, run './build.sh clean'")
-message("      To clean cmake files downloaded libraries, run './clean.sh '")
-message("      To launch this program,  './run.sh'")
-message("")
-message("==================================================================")
-
-
-
-
-
-
-
 
 ###########################################
 ###  Add all source files recursively   ###
@@ -99,25 +70,59 @@ add_executable(PT main.cpp ${SOURCES} ${HEADERS})
 ###########################################
 ###  Apply RELEASE/DEBUG compile flags  ###
 ###########################################
-target_compile_features(PT PUBLIC cxx_std_17)                                         ### Demand c++17 compiler support
-target_compile_options(PT PUBLIC ${COMMON_OPTIONS})                                   ### Common options
-target_compile_options(PT PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")               ### Debug build options
-target_compile_options(PT PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")           ### Release build options
-target_link_libraries(PT -flto)                                                       ### Link time optimization flag
+target_compile_options(${PROJECT_NAME} PUBLIC ${COMMON_OPTIONS})                                   ### Common options
+target_compile_options(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")               ### Debug build options
+target_compile_options(${PROJECT_NAME} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")           ### Release build options
+target_link_libraries (${PROJECT_NAME} -flto)                                                       ### Link time optimization flag
+
+
+######################################################
+###  Require c++17 support and test that it works  ###
+######################################################
+set_target_properties  (${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED 17)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)                                         ### Demand c++17 compiler support
+INCLUDE(CheckIncludeFileCXX)
+check_include_file_cxx(experimental/filesystem  has_experimental_filesystem -std=c++17)
+check_include_file_cxx(experimental/type_traits has_experimental_type_traits -std=c++17)
+if(has_experimental_filesystem AND has_experimental_type_traits)
+    message(STATUS "C++17 experimental features are supported.")
+else()
+    message(FATAL_ERROR "Missing experimental headers for C++17. Check your compiler and libstdc++ versions")
+endif()
+
+
 
 
 #######################################
 ###  Link and include dependencies  ###
 #######################################
 
-target_include_directories(PT PRIVATE source)
-target_include_directories(PT PRIVATE ${EIGEN3_INCLUDE_DIR})
-target_include_directories(PT PRIVATE ${MPI_INCLUDE_PATH})
+target_include_directories(${PROJECT_NAME} PRIVATE source)
+target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
+target_link_libraries(${PROJECT_NAME} -lstdc++fs)                              ### For experimental::filesystem
 
-target_link_libraries(PT ${HDF5_LIBRARIES} ${HDF5_LDFLAGS} -ldl)
-target_link_libraries(PT ${MPI_LIBRARIES})
-target_link_libraries(PT -lstdc++fs)                              ### For experimental::filesystem
+include(cmake/Find_dont_install_INTELMKL.cmake)
+include(cmake/Find_or_install_EIGEN3.cmake)                                     ### For Eigen linear algebra header-library http://eigen.tuxfamily.org/
+include(cmake/Find_or_install_HDF5.cmake)                                       ### For HDF5 data env_storage format        https://support.hdfgroup.org
 
+message("======================================")
+message("=== SUMMARY OF CMAKE CONFIGURATION ===")
+message("======================================")
+message("FOUND INTEL MKL:   ${MKL_LIBRARIES}")
+message("FOUND EIGEN3   :   ${EIGEN3_INCLUDE_DIR}")
+message("FOUND HDF5     :   ${HDF5_LIBRARIES}")
+message("======================================")
+
+###################
+### INFORMATION ###
+###################
+message("==================================================================")
+message("")
+message("      To clean cmake files, run './build.sh clean'")
+message("      To clean cmake files downloaded libraries, run './clean.sh '")
+message("      To launch this program,  './run.sh'")
+message("")
+message("==================================================================")
 
 
 

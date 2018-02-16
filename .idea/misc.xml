@@ -28,4 +28,5 @@
       <file path="$PROJECT_DIR$/output" />
     </excludeRoots>
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.6 (PT)" project-jdk-type="Python SDK" />
 </project>

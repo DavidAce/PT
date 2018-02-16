@@ -292,7 +292,8 @@ namespace parallel {
             out.hdf5->read_dataset_mpi(M_timeseries,"timeseries/M");
             worker.thermo.load_data(E_timeseries,M_timeseries, T);
             worker.thermo.calc_thermo();
-            out.thermo_table->emplace_back(worker.thermo.u,
+            out.thermo_table->emplace_back(T,
+                                           worker.thermo.u,
                                            worker.thermo.sigma_u,
                                            worker.thermo.m,
                                            worker.thermo.sigma_m,
