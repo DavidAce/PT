@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 project(PT)
+
+
 set(CMAKE_VERBOSE_MAKEFILE OFF)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
-include(cmake/get_libraries.cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 ################################################################
 ### Get git version number                                   ###
@@ -10,51 +11,68 @@ include(cmake/get_libraries.cmake)
 ### Include it using #include <gitversion.h>                 ###
 ### Gives a namespace GIT:: with several git version numbers.###
 ################################################################
-include(cmake/gitversion.cmake)
-include(cmake/directory.cmake)
-
-message("Compiling with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+include(cmake_modules/gitversion.cmake)
 
 
+##################################################################
+### Define variables for directory paths accessible at runtime ###
+##################################################################
+include(cmake_modules/directory.cmake)
 
-###########################################
-###  Find or install all dependencies   ###
-###########################################
-find_package(MPI REQUIRED)
-# add this line only when you are using openmpi which has a different c++ bindings
-# MAKE SURE "g++" and "c++" environment variables points to the same compiler, i.e. clang or gnu.
-add_definitions(-DOMPI_SKIP_MPICXX)
-message("MPI_CXX_COMPILER           : ${MPI_CXX_COMPILER}")
-message("MPI_CXX_VERSION            : ${MPI_CXX_VERSION}")
-message("MPI_CXX_COMPILE_OPTIONS    : ${MPI_CXX_COMPILE_OPTIONS}")
+
+##################################################################
+### Get operating system properties into a variable            ###
+##################################################################
+set(GET_OS_INFO_CMD lsb_release -a)
+if(${CMAKE_HOST_APPLE})
+    set(GET_OS_INFO_CMD "sw_vers")
+endif()
+execute_process(COMMAND ${GET_OS_INFO_CMD}
+        OUTPUT_VARIABLE OS_PROPERTIES
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+message("========= DETECTED OS =========")
+message("${OS_PROPERTIES}")
+message("===============================")
+
 
 ###################
 ### Setup flags ###
 ###################
+message("Compiling with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 set(COMMON_OPTIONS -g -Wall -march=native)
 set(DEBUG_OPTIONS       -Wextra -O0)
 set(RELEASE_OPTIONS     -DNDEBUG -O3)
-message("Compiling with: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
-site_name(this_host)
-if ("${this_host}" MATCHES "triolith")
-    message("Host: ${this_host}")
-    set(CMAKE_CXX_COMPILER mpiicpc)
-    set(COMMON_OPTIONS ${COMMON_OPTIONS} -ip -xavx -cxxlib=/software/apps/gcc/5.3.0/build01/ -gxx-name=g++)
+
+
+##########################
+### OS-dependent flags ###
+##########################
+if(${CMAKE_HOST_APPLE})
+    list(APPEND COMMON_OPTIONS -mmacosx-version-min=10.13)
 else()
-    message("Host: ${this_host}")
-#    set(CMAKE_CXX_COMPILER mpicxx)
-#    set(CMAKE_)
+    list(APPEND COMMON_OPTIONS -mavx -mfma)
 endif()
 
-
-
+################################
+### Compiler-dependent flags ###
+################################
 if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" )
-    message("Special flags for g++:  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}  -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context)
+    list(APPEND COMMON_OPTIONS -Wno-implicit-fallthrough -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-int-in-bool-context -Wno-maybe-uninitialized -Wno-enum-compare)
 elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    message("Special flags for Clang:  -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual")
-    set(COMMON_OPTIONS ${COMMON_OPTIONS}   -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual)
+    list(APPEND COMMON_OPTIONS -stdlib=libstdc++ -Wno-deprecated-declarations -Wno-ignored-attributes -Wno-invalid-partial-specialization -Wno-missing-braces -Wno-overloaded-virtual -Wno-uninitialized)
 endif()
+
+
+################################
+### Print current CXX flags  ###
+################################
+message(STATUS "COMMON CXX flags:  ${COMMON_OPTIONS} ${CMAKE_CXX_FLAGS}")
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(STATUS "RELEASE CXX flags: ${RELEASE_OPTIONS}")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "DEBUG CXX flags: ${DEBUG_OPTIONS}")
+endif()
+
 
 
 
@@ -64,73 +82,101 @@ endif()
 ###########################################
 file(GLOB_RECURSE SOURCES "source/*.cpp")
 file(GLOB_RECURSE HEADERS "source/*.h")
-add_executable(PT main.cpp ${SOURCES} ${HEADERS})
-
+file(GLOB_RECURSE EMC_SOURCES "EMC-Lib/source/*.cpp")
+file(GLOB_RECURSE EMC_HEADERS "EMC-Lib/source/*.hpp")
+add_executable(${PROJECT_NAME} main.cpp ${SOURCES} ${HEADERS} ${EMC_SOURCES} ${EMC_HEADERS})
+target_include_directories(${PROJECT_NAME} PUBLIC EMC-Lib)
+target_include_directories(${PROJECT_NAME} PUBLIC source)
 
 ###########################################
 ###  Apply RELEASE/DEBUG compile flags  ###
 ###########################################
-target_compile_options(${PROJECT_NAME} PUBLIC ${COMMON_OPTIONS})                                   ### Common options
-target_compile_options(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")               ### Debug build options
-target_compile_options(${PROJECT_NAME} PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")           ### Release build options
-target_link_libraries (${PROJECT_NAME} -flto)                                                       ### Link time optimization flag
+target_compile_options (${PROJECT_NAME} PRIVATE ${COMMON_OPTIONS})                                   ### Common options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")               ### Debug build options
+target_compile_options (${PROJECT_NAME} PRIVATE "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")           ### Release build options
+target_link_libraries  (${PROJECT_NAME} PRIVATE -flto)                                               ### Link time optimization flag
+target_link_libraries  (${PROJECT_NAME} PRIVATE -lstdc++fs)                                          ### For experimental::filesystem
 
 
-######################################################
-###  Require c++17 support and test that it works  ###
-######################################################
-set_target_properties  (${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED 17)
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)                                         ### Demand c++17 compiler support
-INCLUDE(CheckIncludeFileCXX)
-check_include_file_cxx(experimental/filesystem  has_experimental_filesystem -std=c++17)
-check_include_file_cxx(experimental/type_traits has_experimental_type_traits -std=c++17)
-if(has_experimental_filesystem AND has_experimental_type_traits)
-    message(STATUS "C++17 experimental features are supported.")
-else()
-    message(FATAL_ERROR "Missing experimental headers for C++17. Check your compiler and libstdc++ versions")
+##################
+###  Link MPI  ###
+##################
+find_package(MPI REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${MPI_LIBRARIES})
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
+
+
+###############################
+###  Require c++17 support  ###
+###############################
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF)
+
+
+
+###########################################
+###  Find or fetch all dependencies   ###
+###########################################
+
+set(INSTALL_DIRECTORY ${PROJECT_SOURCE_DIR}/libs)
+include(cmake_modules/Fetch_Eigen3.cmake)                   # Eigen library
+include(cmake_modules/Fetch_HDF5.cmake)                     # HDF5 binary file format for output data.
+
+
+######################################
+###  Require experimental headers  ###
+######################################
+# Use cmake_policy CMP0067 to let try_compile honor current CMAKE_CXX_STANDARD setting.
+# See here
+# https://stackoverflow.com/questions/47213356/cmake-using-corrext-c-standard-when-checking-for-header-files
+cmake_policy(SET CMP0067 NEW)
+include(CheckIncludeFileCXX)
+set(CMAKE_REQUIRED_FLAGS -std=c++17  -lstdc++fs -l${PATH_TO_LIBSTDCXXFS})
+check_include_file_cxx(experimental/filesystem    has_experimental_filesystem)
+check_include_file_cxx(experimental/type_traits   has_experimental_type_traits)
+if(NOT has_experimental_filesystem OR NOT has_experimental_type_traits )
+    message(FATAL_ERROR "\n\
+        Missing one or more experimental headers.\n\
+        Consider using a newer compiler (GCC 7 or above, Clang 6 or above),\n\
+        or checking the compiler flags.")
 endif()
 
 
 
 
-#######################################
-###  Link and include dependencies  ###
-#######################################
 
-target_include_directories(${PROJECT_NAME} PRIVATE source)
-target_include_directories(${PROJECT_NAME} PRIVATE ${MPI_INCLUDE_PATH})
-target_link_libraries(${PROJECT_NAME} -lstdc++fs)                              ### For experimental::filesystem
 
-include(cmake/Find_dont_install_INTELMKL.cmake)
-include(cmake/Find_or_install_EIGEN3.cmake)                                     ### For Eigen linear algebra header-library http://eigen.tuxfamily.org/
-include(cmake/Find_or_install_HDF5.cmake)                                       ### For HDF5 data env_storage format        https://support.hdfgroup.org
+message("=============================================================================")
+message("=== SUMMARY OF CMAKE CONFIGURATION:  THE FOLLOWING LIBRARIES WILL BE USED ===")
+message("=============================================================================")
+message("    EIGEN3   :   ${EIGEN3_INCLUDE_DIR}")
+message("    HDF5     :   ${HDF5_LIBRARIES} ${HDF5_CXX_LIBRARIES} ${HDF5_HL_LIBRARIES} ${HDF5_CXX_HL_LIBRARIES}")
+message("=============================================================================")
+message("")
 
-message("======================================")
-message("=== SUMMARY OF CMAKE CONFIGURATION ===")
-message("======================================")
-message("FOUND INTEL MKL:   ${MKL_LIBRARIES}")
-message("FOUND EIGEN3   :   ${EIGEN3_INCLUDE_DIR}")
-message("FOUND HDF5     :   ${HDF5_LIBRARIES}")
-message("======================================")
+
+
 
 ###################
 ### INFORMATION ###
 ###################
-message("==================================================================")
 message("")
-message("      To clean cmake files, run './build.sh clean'")
-message("      To clean cmake files downloaded libraries, run './clean.sh '")
+message("=============================================================================")
+message("")
+message("      To clean cmake files, run './build.sh -c'")
+message("      To clean cmake files downloaded libraries, run './build.sh -l '")
 message("      To launch this program,  './run.sh'")
 message("")
-message("==================================================================")
+message("=============================================================================")
+message("")
 
-
-
-# To print all variables, use the code below:
-#
-#get_cmake_property(_variableNames VARIABLES)
-#foreach (_variableName ${_variableNames})
-#    message(STATUS "${_variableName}=${${_variableName}}")
-#endforeach()
 
 
